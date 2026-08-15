@@ -951,7 +951,7 @@ function loadData() {
     if (!siteData.timeline) siteData.timeline = DEFAULT_DATA.timeline;
   } else {
     siteData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    saveData(); // immediately save defaults
+    saveData(); // this will now be safe because updateDashboardCounts checks for elements
   }
 }
 
@@ -984,11 +984,12 @@ function countMessages() {
 
 function updateDashboardCounts() {
   const d = siteData;
-  document.getElementById('dcount-projects').textContent = (d.projects||[]).length;
-  document.getElementById('dcount-things').textContent = (d.things||[]).length;
-  document.getElementById('dcount-gallery').textContent = (d.gallery||[]).length;
-  document.getElementById('dcount-building').textContent = (d.building||[]).length;
-  document.getElementById('dcount-messages').textContent = countMessages();
+  const el = (id) => document.getElementById(id);
+  if (el('dcount-projects')) el('dcount-projects').textContent = (d.projects || []).length;
+  if (el('dcount-things')) el('dcount-things').textContent = (d.things || []).length;
+  if (el('dcount-gallery')) el('dcount-gallery').textContent = (d.gallery || []).length;
+  if (el('dcount-building')) el('dcount-building').textContent = (d.building || []).length;
+  if (el('dcount-messages')) el('dcount-messages').textContent = countMessages();
 }
 
 /* =========================================================
