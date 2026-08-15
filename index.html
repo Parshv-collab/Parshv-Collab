@@ -251,6 +251,25 @@ section{ position:relative; z-index:1; padding:100px 6vw; max-width:1400px; marg
 .progress-track{ height:6px; border-radius:99px; background:rgba(255,255,255,0.07); overflow:hidden; }
 .progress-fill{ height:100%; background:var(--accent-grad); border-radius:99px; transition:width 1.2s var(--ease); }
 
+/* NEW: Things section */
+#things{
+  padding-left:0; padding-right:0;
+}
+#things .things-head{ padding:0 6vw; }
+.things-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; margin-top:40px; padding:0 6vw;
+}
+.thing-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  overflow:hidden; transition:transform .3s var(--ease), border-color .3s;
+}
+.thing-card:hover{ transform:translateY(-4px); border-color:rgba(110,139,255,0.3); }
+.thing-card .thumb{ height:180px; background-size:cover; background-position:center; }
+.thing-card .body{ padding:18px; }
+.thing-card .cat{ font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.1em; font-family:'JetBrains Mono',monospace; }
+.thing-card h3{ margin:4px 0 6px; font-size:18px; }
+.thing-card p{ color:var(--text-dim); font-size:13px; line-height:1.5; margin:0; }
+
 .stack-cloud{ display:flex; flex-wrap:wrap; gap:12px; margin-top:40px; }
 .stack-chip{
   padding:12px 20px; border-radius:999px; border:1px solid var(--panel-border); background:var(--panel);
@@ -475,6 +494,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
     <a href="#hero" class="nav-link" data-target="hero"><span class="liquid"></span>Home</a>
     <a href="#work" class="nav-link" data-target="work"><span class="liquid"></span>Work</a>
     <a href="#about" class="nav-link" data-target="about"><span class="liquid"></span>About</a>
+    <a href="#things" class="nav-link" data-target="things"><span class="liquid"></span>Things</a>
     <a href="#lab" class="nav-link" data-target="lab"><span class="liquid"></span>Lab</a>
     <a href="#contact" class="nav-cta">↗ Contact</a>
   </div>
@@ -523,7 +543,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
   </div>
 </section>
 
-<!-- WORK -->
+<!-- WORK (featured projects) -->
 <section id="work">
   <div class="work-head">
     <div class="eyebrow">02 — Featured work</div>
@@ -534,6 +554,15 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
       <div id="work-track"></div>
     </div>
   </div>
+</section>
+
+<!-- THINGS (all things – new section) -->
+<section id="things">
+  <div class="things-head">
+    <div class="eyebrow">02.5 — All Things I Built</div>
+    <h2 style="font-size:clamp(28px,7vw,48px); margin:0;">Everything I've made</h2>
+  </div>
+  <div class="things-grid" id="things-grid"></div>
 </section>
 
 <!-- LAB -->
@@ -648,6 +677,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
     <div class="admin-side">
       <div class="admin-nav-item active" data-panel="dash">Dashboard</div>
       <div class="admin-nav-item" data-panel="projects">Projects</div>
+      <div class="admin-nav-item" data-panel="things">Things I Built</div>   <!-- NEW -->
       <div class="admin-nav-item" data-panel="gallery">Gallery</div>
       <div class="admin-nav-item" data-panel="about">About</div>
       <div class="admin-nav-item" data-panel="building">Currently building</div>
@@ -661,15 +691,16 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         <h2 id="dash-greeting">Good morning, Parshv 👋</h2>
         <div class="admin-cards">
           <div class="admin-stat"><div class="n" id="dcount-projects">0</div><div class="l">Projects</div></div>
+          <div class="admin-stat"><div class="n" id="dcount-things">0</div><div class="l">Things I Built</div></div>
           <div class="admin-stat"><div class="n" id="dcount-gallery">0</div><div class="l">Gallery photos</div></div>
           <div class="admin-stat"><div class="n" id="dcount-messages">0</div><div class="l">Messages</div></div>
-          <div class="admin-stat"><div class="n" id="dcount-building">0</div><div class="l">In progress</div></div>
         </div>
         <p style="color:var(--text-dim); font-size:14px; max-width:560px; line-height:1.7;">
           Everything you edit here updates the live site immediately — projects, the dome gallery, your about copy, progress bars, the timeline and your social links all read from storage instead of the page's HTML.
         </p>
       </div>
 
+      <!-- Projects panel (unchanged) -->
       <div class="admin-panel-section" id="panel-projects">
         <h2>Projects</h2>
         <button class="add-btn" onclick="openProjectForm()">+ Add project</button>
@@ -703,6 +734,40 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         </div>
       </div>
 
+      <!-- NEW: Things I Built panel -->
+      <div class="admin-panel-section" id="panel-things">
+        <h2>Things I Built</h2>
+        <button class="add-btn" onclick="openThingForm()">+ Add thing</button>
+        <div id="things-admin-list"></div>
+        <div class="admin-form" id="thing-form" style="display:none;">
+          <div class="field"><label>Name</label><input id="tf-name"></div>
+          <div class="field"><label>Description</label><textarea id="tf-desc" rows="3"></textarea></div>
+          <div class="row2">
+            <div class="field"><label>Category</label>
+              <select id="tf-cat"><option>Web Development</option><option>AI</option><option>Robotics</option><option>Mobile</option><option>Experiment</option></select>
+            </div>
+            <div class="field"><label>Technologies (comma separated)</label><input id="tf-tech" placeholder="React, Python, Flask"></div>
+          </div>
+          <div class="field"><label>Image URL or upload</label>
+            <div style="display:flex; align-items:center;">
+              <input id="tf-img" placeholder="https://..." style="flex:1;">
+              <span class="upload-btn" onclick="uploadImage('tf-img')">📁 Upload</span>
+              <input type="file" id="tf-img-file" accept="image/*" style="display:none;" onchange="handleImageUpload(this, 'tf-img')">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>GitHub URL</label><input id="tf-github" placeholder="https://github.com/..."></div>
+            <div class="field"><label>Live URL</label><input id="tf-live" placeholder="https://..."></div>
+          </div>
+          <input type="hidden" id="tf-id">
+          <div class="admin-actions">
+            <button class="btn-small primary" onclick="saveThing()">Save thing</button>
+            <button class="btn-small" onclick="closeThingForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery panel (unchanged) -->
       <div class="admin-panel-section" id="panel-gallery">
         <h2>Gallery (feeds the Lab dome)</h2>
         <button class="add-btn" onclick="openGalleryForm()">+ Add photo</button>
@@ -724,6 +789,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         </div>
       </div>
 
+      <!-- About panel (unchanged) -->
       <div class="admin-panel-section" id="panel-about">
         <h2>About</h2>
         <div class="admin-form" id="about-form" style="display:block;">
@@ -741,6 +807,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         </div>
       </div>
 
+      <!-- Building panel (unchanged) -->
       <div class="admin-panel-section" id="panel-building">
         <h2>Currently building</h2>
         <button class="add-btn" onclick="openBuildForm()">+ Add item</button>
@@ -757,6 +824,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         </div>
       </div>
 
+      <!-- Timeline panel (unchanged) -->
       <div class="admin-panel-section" id="panel-timeline">
         <h2>Timeline</h2>
         <button class="add-btn" onclick="openTlForm()">+ Add timeline event</button>
@@ -775,11 +843,13 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         </div>
       </div>
 
+      <!-- Messages panel (unchanged) -->
       <div class="admin-panel-section" id="panel-messages">
         <h2>Contact messages</h2>
         <div id="messages-list"></div>
       </div>
 
+      <!-- Settings panel (unchanged) -->
       <div class="admin-panel-section" id="panel-settings">
         <h2>Site settings</h2>
         <div class="admin-form" id="settings-form" style="display:block;">
@@ -807,6 +877,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
     </div>
   </div>
 
+  <!-- Hidden forms for drawers -->
   <div class="admin-form" id="hero-form" style="display:none;">
     <div class="field"><label>Name</label><input id="hf-name"></div>
     <div class="field"><label>Tagline</label><input id="hf-tagline"></div>
@@ -869,6 +940,10 @@ const DEFAULT_DATA = {
     { id:'p3', name:'AI Experiment', desc:'A small experiment training a model to classify handwritten notes and turn them into structured to-do lists.', category:'AI', tech:'Python, PyTorch', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200', github:'https://github.com', live:'', featured:true },
     { id:'p4', name:'Robotics Project', desc:'A line-following robot built from scratch, with a custom PID controller tuned by hand over dozens of test runs.', category:'Robotics', tech:'C++, Arduino', img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200', github:'https://github.com', live:'', featured:true }
   ],
+  things: [
+    { id:'t1', name:'Chat App', desc:'Real-time messaging app with websockets.', category:'Web Development', tech:'Node.js, Socket.io, React', img:'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800', github:'https://github.com', live:'' },
+    { id:'t2', name:'Music Bot', desc:'Discord bot that plays music from YouTube.', category:'Experiment', tech:'Python, Discord.py', img:'https://images.unsplash.com/photo-1550439062-609e1531270e?q=80&w=800', github:'https://github.com', live:'' }
+  ],
   gallery: [
     { id:'g1', caption:'UI concept', img:'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800' },
     { id:'g2', caption:'Robotics build', img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800' },
@@ -882,10 +957,10 @@ const DEFAULT_DATA = {
     { id:'b2', name:'Robotics v2', desc:'Rebuilding the line follower with a smarter sensor array and a faster PID loop.', pct:45 }
   ],
   timeline: [
-    { id:'t1', year:'2023', text:'Started coding', now:false },
-    { id:'t2', year:'2024', text:'Built first major projects', now:false },
-    { id:'t3', year:'2025', text:'Started exploring AI', now:false },
-    { id:'t4', year:'2026', text:'Building bigger projects', now:true }
+    { id:'tl1', year:'2023', text:'Started coding', now:false },
+    { id:'tl2', year:'2024', text:'Built first major projects', now:false },
+    { id:'tl3', year:'2025', text:'Started exploring AI', now:false },
+    { id:'tl4', year:'2026', text:'Building bigger projects', now:true }
   ]
 };
 
@@ -896,15 +971,17 @@ async function loadData() {
     const res = await fetch(`${API_BASE}/api/site-data`);
     const data = await res.json();
     siteData = data || DEFAULT_DATA;
+    // Merge defaults for any missing fields
     siteData.settings = Object.assign({}, DEFAULT_DATA.settings, siteData.settings || {});
     siteData.about = Object.assign({}, DEFAULT_DATA.about, siteData.about || {});
     if (!siteData.projects) siteData.projects = DEFAULT_DATA.projects;
+    if (!siteData.things) siteData.things = DEFAULT_DATA.things;   // NEW
     if (!siteData.gallery) siteData.gallery = DEFAULT_DATA.gallery;
     if (!siteData.building) siteData.building = DEFAULT_DATA.building;
     if (!siteData.timeline) siteData.timeline = DEFAULT_DATA.timeline;
   } catch(e) {
     console.error('Failed to load data, using defaults', e);
-    siteData = DEFAULT_DATA;
+    siteData = JSON.parse(JSON.stringify(DEFAULT_DATA)); // deep copy
   }
 }
 
@@ -957,33 +1034,40 @@ async function deleteMessageFromDB(id) {
 function renderSite() {
   const d = siteData;
   const em = editMode;
+
+  // Hero
   document.getElementById('hero-name').textContent = d.settings.name.toUpperCase();
   document.getElementById('hero-name').setAttribute('data-text', d.settings.name.toUpperCase());
   document.getElementById('hero-tagline').textContent = d.settings.tagline.toUpperCase();
-  document.getElementById('hero-desc').textContent = d.settings.heroDesc;
-  document.getElementById('hero-tag-text').textContent = d.settings.heroTag || '● AVAILABLE FOR PROJECTS';
-  document.getElementById('contact-desc').textContent = d.settings.contactDesc || '';
+  document.getElementById('hero-desc').textContent = d.settings.heroDesc || DEFAULT_DATA.settings.heroDesc;
+  document.getElementById('hero-tag-text').textContent = d.settings.heroTag || DEFAULT_DATA.settings.heroTag;
+  document.getElementById('contact-desc').textContent = d.settings.contactDesc || DEFAULT_DATA.settings.contactDesc;
   document.getElementById('footer-logo').textContent = d.settings.name.toUpperCase() + '.DEV';
-  document.documentElement.style.setProperty('--accent', d.settings.accent);
+  document.documentElement.style.setProperty('--accent', d.settings.accent || '#6e8bff');
 
-  document.getElementById('about-headline').innerHTML = `I'm ${d.settings.name}. <span class="dim">${escapeHtml(d.about.headline.replace(/^I'm\s+\w+\.\s*/,''))}</span>`;
-  document.getElementById('about-age').textContent = d.about.age;
-  document.getElementById('about-interests').textContent = d.about.interests;
-  document.getElementById('about-current').textContent = d.about.current;
-  document.getElementById('stat-projects').textContent = d.about.statProjects;
-  document.getElementById('stat-years').textContent = d.about.statYears;
+  // About – with fallbacks
+  const about = d.about || {};
+  const headline = about.headline || "I'm Parshv. A developer who likes building things — mostly at the edge of what I already know how to do.";
+  const cleaned = headline.replace(/^I'm\s+\w+\.\s*/, '');
+  document.getElementById('about-headline').innerHTML = `I'm ${d.settings.name}. <span class="dim">${escapeHtml(cleaned)}</span>`;
+  document.getElementById('about-age').textContent = about.age || '14';
+  document.getElementById('about-interests').textContent = about.interests || 'AI, Robotics, Web';
+  document.getElementById('about-current').textContent = about.current || 'Building bigger projects';
+  document.getElementById('stat-projects').textContent = about.statProjects || '12+';
+  document.getElementById('stat-years').textContent = about.statYears || '03+';
 
+  // Work (featured projects)
   const track = document.getElementById('work-track');
   track.innerHTML = '';
-  d.projects.filter(p=>p.featured).forEach(p=>{
+  (d.projects || []).filter(p=>p.featured).forEach(p=>{
     const a = document.createElement('a');
     a.href = 'javascript:void(0)';
     a.className = 'pcard';
     a.onclick = ()=> em ? openProjectEdit(p.id) : openProjectModal(p.id);
     a.innerHTML = `
-      <div class="thumb" style="background-image:url('${p.img}')"></div>
+      <div class="thumb" style="background-image:url('${p.img || ''}')"></div>
       <div class="body">
-        <div class="cat">${p.category}</div>
+        <div class="cat">${p.category || 'Project'}</div>
         <h3>${escapeHtml(p.name)}</h3>
         <p>${escapeHtml(p.desc)}</p>
         <div class="view">View →</div>
@@ -1004,15 +1088,50 @@ function renderSite() {
     track.appendChild(a);
   });
 
+  // Things (new section)
+  const thingsGrid = document.getElementById('things-grid');
+  thingsGrid.innerHTML = '';
+  (d.things || []).forEach(t=>{
+    const card = document.createElement('div');
+    card.className = 'thing-card';
+    card.innerHTML = `
+      <div class="thumb" style="background-image:url('${t.img || ''}')"></div>
+      <div class="body">
+        <div class="cat">${t.category || 'Thing'}</div>
+        <h3>${escapeHtml(t.name)}</h3>
+        <p>${escapeHtml(t.desc)}</p>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          ${t.live ? `<a href="${t.live}" target="_blank" class="btn btn-primary" style="padding:4px 12px; font-size:11px;">Live</a>` : ''}
+          ${t.github ? `<a href="${t.github}" target="_blank" class="btn btn-ghost" style="padding:4px 12px; font-size:11px;">Code</a>` : ''}
+        </div>
+      </div>`;
+    if (em) {
+      const pencil = document.createElement('div');
+      pencil.className = 'pencil-btn';
+      pencil.style.position = 'absolute';
+      pencil.style.top = '6px';
+      pencil.style.right = '6px';
+      pencil.style.zIndex = '20';
+      pencil.style.opacity = '1';
+      pencil.style.transform = 'none';
+      pencil.textContent = '✎';
+      pencil.onclick = (e) => { e.stopPropagation(); openThingEdit(t.id); };
+      card.style.position = 'relative';
+      card.appendChild(pencil);
+    }
+    thingsGrid.appendChild(card);
+  });
+
+  // Dome gallery
   const dome = document.getElementById('dome');
   dome.innerHTML = '';
-  const items = d.gallery;
+  const items = d.gallery || [];
   const n = items.length || 1;
   const radius = innerWidth < 768 ? 200 : 320;
   items.forEach((g,i)=>{
     const el = document.createElement('div');
     el.className = 'dome-item';
-    el.style.backgroundImage = `url('${g.img}')`;
+    el.style.backgroundImage = `url('${g.img || ''}')`;
     el.style.transform = `rotateY(${(360/n)*i}deg) translateZ(${radius}px)`;
     el.innerHTML = `<div class="dl">${escapeHtml(g.caption||'')}</div>`;
     el.onclick = ()=> openGalleryModal(g.id);
@@ -1026,14 +1145,15 @@ function renderSite() {
     dome.appendChild(el);
   });
 
+  // Building
   document.getElementById('building-list').innerHTML = '';
-  d.building.forEach(b=>{
+  (d.building || []).forEach(b=>{
     const card = document.createElement('div');
     card.className = 'build-card';
     card.innerHTML = `
-      <div class="build-top"><div class="build-name"><span class="dot"></span>${escapeHtml(b.name)}</div><div class="build-pct">${b.pct}%</div></div>
+      <div class="build-top"><div class="build-name"><span class="dot"></span>${escapeHtml(b.name)}</div><div class="build-pct">${b.pct||0}%</div></div>
       <div class="build-desc">${escapeHtml(b.desc)}</div>
-      <div class="progress-track"><div class="progress-fill" style="width:${b.pct}%"></div></div>`;
+      <div class="progress-track"><div class="progress-fill" style="width:${b.pct||0}%"></div></div>`;
     if (em) {
       const pencil = document.createElement('div');
       pencil.className = 'pencil-btn';
@@ -1047,6 +1167,7 @@ function renderSite() {
     document.getElementById('building-list').appendChild(card);
   });
 
+  // Stack
   const stackArray = (d.settings.stack||'').split(',').map(s=>s.trim()).filter(Boolean);
   const stackContainer = document.getElementById('stack-cloud');
   stackContainer.innerHTML = '';
@@ -1064,9 +1185,10 @@ function renderSite() {
     stackContainer.appendChild(chip);
   });
 
+  // Timeline
   const tlContainer = document.getElementById('tl-list');
   tlContainer.innerHTML = '';
-  d.timeline.forEach(t=>{
+  (d.timeline || []).forEach(t=>{
     const item = document.createElement('div');
     item.className = `tl-item ${t.now?'now':''}`;
     item.innerHTML = `<div class="tl-year">${escapeHtml(t.year)}${t.now?' · NOW':''}</div><div class="tl-text">${escapeHtml(t.text)}</div>`;
@@ -1080,30 +1202,34 @@ function renderSite() {
     tlContainer.appendChild(item);
   });
 
+  // Social links
+  const s = d.settings;
   document.getElementById('social-row').innerHTML = `
-    <a href="${d.settings.github}" target="_blank">GitHub</a>
-    <a href="${d.settings.instagram}" target="_blank">Instagram</a>
-    <a href="${d.settings.linkedin}" target="_blank">LinkedIn</a>
-    <a href="${d.settings.youtube}" target="_blank">YouTube</a>`;
+    <a href="${s.github || '#'}" target="_blank">GitHub</a>
+    <a href="${s.instagram || '#'}" target="_blank">Instagram</a>
+    <a href="${s.linkedin || '#'}" target="_blank">LinkedIn</a>
+    <a href="${s.youtube || '#'}" target="_blank">YouTube</a>`;
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
   setupHorizontalScroll();
+  // Re-apply dome angle (if needed)
+  applyDome();
 }
 
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* =========================================================
-   MODALS
+   MODALS (unchanged)
 ========================================================= */
 function openProjectModal(id) {
-  const p = siteData.projects.find(x=>x.id===id);
+  const p = (siteData.projects || []).find(x=>x.id===id);
   if(!p) return;
   document.getElementById('modal-panel').innerHTML = `
     <div class="modal-back" onclick="closeModal()">← BACK</div>
     <div class="cat">${p.category}</div>
     <h2>${escapeHtml(p.name)}</h2>
     <div class="desc">${escapeHtml(p.desc)}</div>
-    <div class="tech-tags">${p.tech.split(',').map(t=>`<span>${escapeHtml(t.trim())}</span>`).join('')}</div>
+    <div class="tech-tags">${(p.tech||'').split(',').map(t=>`<span>${escapeHtml(t.trim())}</span>`).join('')}</div>
     <div class="modal-links">
       ${p.live?`<a class="btn btn-primary" href="${p.live}" target="_blank">Live website</a>`:''}
       ${p.github?`<a class="btn btn-ghost" href="${p.github}" target="_blank">Source code</a>`:''}
@@ -1112,7 +1238,7 @@ function openProjectModal(id) {
 }
 
 function openGalleryModal(id) {
-  const g = siteData.gallery.find(x=>x.id===id);
+  const g = (siteData.gallery || []).find(x=>x.id===id);
   if(!g) return;
   document.getElementById('modal-panel').innerHTML = `
     <div class="modal-back" onclick="closeModal()">← BACK</div>
@@ -1126,7 +1252,7 @@ function closeModal(){ document.getElementById('modal-bg').classList.remove('ope
 document.getElementById('modal-bg').addEventListener('click', e=>{ if(e.target.id==='modal-bg') closeModal(); });
 
 /* =========================================================
-   THEME TOGGLE
+   THEME TOGGLE (unchanged)
 ========================================================= */
 function toggleTheme() {
   document.body.classList.toggle('light');
@@ -1140,7 +1266,7 @@ if(localStorage.getItem('parshv-theme') === 'light') {
 }
 
 /* =========================================================
-   CONTACT
+   CONTACT (unchanged)
 ========================================================= */
 document.getElementById('cf-submit').addEventListener('click', async ()=>{
   const n = document.getElementById('cf-name').value.trim();
@@ -1156,7 +1282,7 @@ document.getElementById('cf-submit').addEventListener('click', async ()=>{
 function copyEmail(){ navigator.clipboard.writeText('chandariaparshv@gmail.com').then(()=>showToast('Email copied')); }
 
 /* =========================================================
-   TYPEWRITER, CLOCK, SCROLL
+   TYPEWRITER, CLOCK, SCROLL (unchanged)
 ========================================================= */
 const phrases = ['Turning ideas into code.','Building the future, one project at a time.','AI, robotics, and the web.','Always learning, always making.'];
 let pi=0, ci=0, del=false;
@@ -1179,7 +1305,7 @@ function updateScrollProgress(){
 addEventListener('scroll', updateScrollProgress);
 
 /* =========================================================
-   DOME
+   DOME (unchanged)
 ========================================================= */
 let domeAngle=0, domeDragging=false, sx=0, sa=0, auto=true;
 function applyDome(){ document.getElementById('dome').style.transform=`rotateY(${domeAngle}deg)`; }
@@ -1199,7 +1325,7 @@ dw.addEventListener('touchstart', ()=> auto=false);
 dw.addEventListener('touchend', ()=> auto=true);
 
 /* =========================================================
-   ADMIN
+   ADMIN (updated with Things support)
 ========================================================= */
 const ADMIN_PASS = 'AdminPass123!';
 let editMode = false;
@@ -1208,6 +1334,7 @@ function checkAdminHash(){
   else if(location.hash !== '#admin') document.getElementById('admin-login').classList.remove('open');
 }
 addEventListener('hashchange', checkAdminHash);
+
 async function tryAdminLogin(){
   if(document.getElementById('admin-pass').value === ADMIN_PASS){
     document.getElementById('admin-login').classList.remove('open');
@@ -1247,17 +1374,20 @@ document.querySelectorAll('.admin-nav-item').forEach(item=>{
     document.getElementById('panel-'+item.dataset.panel).classList.add('active');
     if(item.dataset.panel === 'messages') renderAdminMessages();
     if(item.dataset.panel === 'settings') loadSettingsForm();
+    if(item.dataset.panel === 'things') renderAdminThings();
   });
 });
 
 async function enterAdmin(){
   if(!siteData) await loadData();
   document.getElementById('dash-greeting').textContent = `Good ${timeOfDay()}, ${siteData.settings.name} 👋`;
-  document.getElementById('dcount-projects').textContent = siteData.projects.length;
-  document.getElementById('dcount-gallery').textContent = siteData.gallery.length;
-  document.getElementById('dcount-building').textContent = siteData.building.length;
+  document.getElementById('dcount-projects').textContent = (siteData.projects || []).length;
+  document.getElementById('dcount-things').textContent = (siteData.things || []).length;
+  document.getElementById('dcount-gallery').textContent = (siteData.gallery || []).length;
+  document.getElementById('dcount-building').textContent = (siteData.building || []).length;
   document.getElementById('dcount-messages').textContent = await countMessages();
   renderAdminProjects();
+  renderAdminThings();
   renderAdminGallery();
   renderAdminBuilding();
   renderAdminTimeline();
@@ -1267,8 +1397,9 @@ async function enterAdmin(){
 }
 function timeOfDay(){ const h = new Date().getHours(); return h<12?'morning':h<18?'afternoon':'evening'; }
 
+// ----- Projects (unchanged) -----
 function renderAdminProjects(){
-  document.getElementById('projects-list').innerHTML = siteData.projects.map(p=>`
+  document.getElementById('projects-list').innerHTML = (siteData.projects||[]).map(p=>`
     <div class="list-row"><div><div class="name">${escapeHtml(p.name)}</div><div class="sub">${p.category}${p.featured?' · Featured':''}</div></div>
     <div class="acts"><span onclick="editProject('${p.id}')">✎</span><span onclick="deleteProject('${p.id}')">🗑</span></div></div>`).join('');
 }
@@ -1280,7 +1411,7 @@ function clearProjectForm(){
   document.getElementById('pf-featured').checked=false;
 }
 function editProject(id){
-  const p = siteData.projects.find(x=>x.id===id);
+  const p = (siteData.projects||[]).find(x=>x.id===id);
   if(!p) return;
   openProjectForm();
   document.getElementById('pf-id').value = p.id;
@@ -1306,7 +1437,7 @@ async function saveProject(){
     live: document.getElementById('pf-live').value.trim(),
     featured: document.getElementById('pf-featured').checked
   };
-  const idx = siteData.projects.findIndex(x=>x.id===id);
+  const idx = (siteData.projects||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.projects[idx] = obj;
   else siteData.projects.push(obj);
   await saveData();
@@ -1316,22 +1447,77 @@ async function saveProject(){
   showToast('Project saved');
 }
 async function deleteProject(id){
-  siteData.projects = siteData.projects.filter(x=>x.id!==id);
+  siteData.projects = (siteData.projects||[]).filter(x=>x.id!==id);
   await saveData();
   renderAdminProjects();
   renderSite();
   showToast('Deleted');
 }
 
+// ----- NEW: Things I Built -----
+function renderAdminThings(){
+  document.getElementById('things-admin-list').innerHTML = (siteData.things||[]).map(t=>`
+    <div class="list-row"><div><div class="name">${escapeHtml(t.name)}</div><div class="sub">${t.category}</div></div>
+    <div class="acts"><span onclick="editThing('${t.id}')">✎</span><span onclick="deleteThing('${t.id}')">🗑</span></div></div>`).join('');
+}
+function openThingForm(){ document.getElementById('thing-form').style.display='block'; clearThingForm(); }
+function closeThingForm(){ document.getElementById('thing-form').style.display='none'; }
+function clearThingForm(){
+  ['tf-name','tf-desc','tf-tech','tf-img','tf-github','tf-live','tf-id'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tf-cat').value='Web Development';
+}
+function editThing(id){
+  const t = (siteData.things||[]).find(x=>x.id===id);
+  if(!t) return;
+  openThingForm();
+  document.getElementById('tf-id').value = t.id;
+  document.getElementById('tf-name').value = t.name;
+  document.getElementById('tf-desc').value = t.desc;
+  document.getElementById('tf-cat').value = t.category;
+  document.getElementById('tf-tech').value = t.tech;
+  document.getElementById('tf-img').value = t.img;
+  document.getElementById('tf-github').value = t.github;
+  document.getElementById('tf-live').value = t.live;
+}
+async function saveThing(){
+  const id = document.getElementById('tf-id').value || 't'+Date.now();
+  const obj = {
+    id,
+    name: document.getElementById('tf-name').value.trim() || 'Untitled',
+    desc: document.getElementById('tf-desc').value.trim(),
+    category: document.getElementById('tf-cat').value,
+    tech: document.getElementById('tf-tech').value.trim() || 'JavaScript',
+    img: document.getElementById('tf-img').value.trim() || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800',
+    github: document.getElementById('tf-github').value.trim(),
+    live: document.getElementById('tf-live').value.trim()
+  };
+  const idx = (siteData.things||[]).findIndex(x=>x.id===id);
+  if(idx>=0) siteData.things[idx] = obj;
+  else siteData.things.push(obj);
+  await saveData();
+  renderAdminThings();
+  renderSite();
+  closeThingForm();
+  showToast('Thing saved');
+}
+async function deleteThing(id){
+  siteData.things = (siteData.things||[]).filter(x=>x.id!==id);
+  await saveData();
+  renderAdminThings();
+  renderSite();
+  showToast('Deleted');
+}
+
+// ----- Gallery (unchanged) -----
 function renderAdminGallery(){
-  document.getElementById('gallery-list').innerHTML = siteData.gallery.map(g=>`
+  document.getElementById('gallery-list').innerHTML = (siteData.gallery||[]).map(g=>`
     <div class="list-row"><div class="name">${escapeHtml(g.caption||'Untitled')}</div>
     <div class="acts"><span onclick="editGalleryItem('${g.id}')">✎</span><span onclick="deleteGalleryItem('${g.id}')">🗑</span></div></div>`).join('');
 }
 function openGalleryForm(){ document.getElementById('gallery-form').style.display='block'; }
 function closeGalleryForm(){ document.getElementById('gallery-form').style.display='none'; }
 function editGalleryItem(id){
-  const g = siteData.gallery.find(x=>x.id===id);
+  const g = (siteData.gallery||[]).find(x=>x.id===id);
   if(!g) return;
   openGalleryForm();
   document.getElementById('gf-id').value = g.id;
@@ -1345,7 +1531,7 @@ async function saveGalleryItem(){
     caption: document.getElementById('gf-caption').value.trim(),
     img: document.getElementById('gf-img').value.trim() || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800'
   };
-  const idx = siteData.gallery.findIndex(x=>x.id===id);
+  const idx = (siteData.gallery||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.gallery[idx] = obj;
   else siteData.gallery.push(obj);
   await saveData();
@@ -1355,20 +1541,22 @@ async function saveGalleryItem(){
   showToast('Saved');
 }
 async function deleteGalleryItem(id){
-  siteData.gallery = siteData.gallery.filter(x=>x.id!==id);
+  siteData.gallery = (siteData.gallery||[]).filter(x=>x.id!==id);
   await saveData();
   renderAdminGallery();
   renderSite();
   showToast('Deleted');
 }
 
+// ----- About (unchanged) -----
 function loadAboutForm(){
-  document.getElementById('af-headline').value = siteData.about.headline;
-  document.getElementById('af-age').value = siteData.about.age;
-  document.getElementById('af-interests').value = siteData.about.interests;
-  document.getElementById('af-current').value = siteData.about.current;
-  document.getElementById('af-stat-projects').value = siteData.about.statProjects;
-  document.getElementById('af-stat-years').value = siteData.about.statYears;
+  const a = siteData.about || {};
+  document.getElementById('af-headline').value = a.headline || '';
+  document.getElementById('af-age').value = a.age || '';
+  document.getElementById('af-interests').value = a.interests || '';
+  document.getElementById('af-current').value = a.current || '';
+  document.getElementById('af-stat-projects').value = a.statProjects || '';
+  document.getElementById('af-stat-years').value = a.statYears || '';
 }
 async function saveAbout(){
   siteData.about = {
@@ -1384,15 +1572,16 @@ async function saveAbout(){
   showToast('About saved');
 }
 
+// ----- Building (unchanged) -----
 function renderAdminBuilding(){
-  document.getElementById('building-admin-list').innerHTML = siteData.building.map(b=>`
+  document.getElementById('building-admin-list').innerHTML = (siteData.building||[]).map(b=>`
     <div class="list-row"><div><div class="name">${escapeHtml(b.name)}</div><div class="sub">${b.pct}%</div></div>
     <div class="acts"><span onclick="editBuildItem('${b.id}')">✎</span><span onclick="deleteBuildItem('${b.id}')">🗑</span></div></div>`).join('');
 }
 function openBuildForm(){ document.getElementById('build-form').style.display='block'; }
 function closeBuildForm(){ document.getElementById('build-form').style.display='none'; }
 function editBuildItem(id){
-  const b = siteData.building.find(x=>x.id===id);
+  const b = (siteData.building||[]).find(x=>x.id===id);
   if(!b) return;
   openBuildForm();
   document.getElementById('bf-id').value = b.id;
@@ -1409,7 +1598,7 @@ async function saveBuildItem(){
     desc: document.getElementById('bf-desc').value.trim(),
     pct: Number(document.getElementById('bf-pct').value)
   };
-  const idx = siteData.building.findIndex(x=>x.id===id);
+  const idx = (siteData.building||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.building[idx] = obj;
   else siteData.building.push(obj);
   await saveData();
@@ -1419,22 +1608,23 @@ async function saveBuildItem(){
   showToast('Saved');
 }
 async function deleteBuildItem(id){
-  siteData.building = siteData.building.filter(x=>x.id!==id);
+  siteData.building = (siteData.building||[]).filter(x=>x.id!==id);
   await saveData();
   renderAdminBuilding();
   renderSite();
   showToast('Deleted');
 }
 
+// ----- Timeline (unchanged) -----
 function renderAdminTimeline(){
-  document.getElementById('tl-admin-list').innerHTML = siteData.timeline.map(t=>`
+  document.getElementById('tl-admin-list').innerHTML = (siteData.timeline||[]).map(t=>`
     <div class="list-row"><div><div class="name">${escapeHtml(t.year)} — ${escapeHtml(t.text)}</div><div class="sub">${t.now?'Marked as now':''}</div></div>
     <div class="acts"><span onclick="editTlItem('${t.id}')">✎</span><span onclick="deleteTlItem('${t.id}')">🗑</span></div></div>`).join('');
 }
 function openTlForm(){ document.getElementById('tl-form').style.display='block'; }
 function closeTlForm(){ document.getElementById('tl-form').style.display='none'; }
 function editTlItem(id){
-  const t = siteData.timeline.find(x=>x.id===id);
+  const t = (siteData.timeline||[]).find(x=>x.id===id);
   if(!t) return;
   openTlForm();
   document.getElementById('tf-id').value = t.id;
@@ -1443,16 +1633,16 @@ function editTlItem(id){
   document.getElementById('tf-now').checked = t.now;
 }
 async function saveTlItem(){
-  const id = document.getElementById('tf-id').value || 't'+Date.now();
+  const id = document.getElementById('tf-id').value || 'tl'+Date.now();
   const now = document.getElementById('tf-now').checked;
-  if(now) siteData.timeline.forEach(t=>t.now=false);
+  if(now) (siteData.timeline||[]).forEach(t=>t.now=false);
   const obj = {
     id,
     year: document.getElementById('tf-year').value.trim() || '2026',
     text: document.getElementById('tf-text').value.trim() || 'New milestone',
     now
   };
-  const idx = siteData.timeline.findIndex(x=>x.id===id);
+  const idx = (siteData.timeline||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.timeline[idx] = obj;
   else siteData.timeline.push(obj);
   siteData.timeline.sort((a,b)=>a.year.localeCompare(b.year));
@@ -1463,43 +1653,49 @@ async function saveTlItem(){
   showToast('Timeline updated');
 }
 async function deleteTlItem(id){
-  siteData.timeline = siteData.timeline.filter(x=>x.id!==id);
+  siteData.timeline = (siteData.timeline||[]).filter(x=>x.id!==id);
   await saveData();
   renderAdminTimeline();
   renderSite();
   showToast('Deleted');
 }
 
+// ----- Settings (unchanged) -----
 const ACCENTS = ['#6e8bff','#a26bff','#5be08a','#ff8a5b','#ff6bbf','#5bd0e0'];
 function loadSettingsForm(){
-  document.getElementById('sf-name').value = siteData.settings.name;
-  document.getElementById('sf-tagline').value = siteData.settings.tagline;
-  document.getElementById('sf-hero-tag').value = siteData.settings.heroTag || '';
-  document.getElementById('sf-hero-desc').value = siteData.settings.heroDesc || '';
-  document.getElementById('sf-contact-desc').value = siteData.settings.contactDesc || '';
-  document.getElementById('sf-stack').value = siteData.settings.stack || '';
-  document.getElementById('sf-github').value = siteData.settings.github;
-  document.getElementById('sf-instagram').value = siteData.settings.instagram;
-  document.getElementById('sf-linkedin').value = siteData.settings.linkedin;
-  document.getElementById('sf-youtube').value = siteData.settings.youtube;
-  document.getElementById('accent-swatch').innerHTML = ACCENTS.map(c=>`<div style="background:${c}" class="${c===siteData.settings.accent?'active':''}" onclick="pickAccent('${c}')"></div>`).join('');
+  const s = siteData.settings || {};
+  document.getElementById('sf-name').value = s.name || '';
+  document.getElementById('sf-tagline').value = s.tagline || '';
+  document.getElementById('sf-hero-tag').value = s.heroTag || '';
+  document.getElementById('sf-hero-desc').value = s.heroDesc || '';
+  document.getElementById('sf-contact-desc').value = s.contactDesc || '';
+  document.getElementById('sf-stack').value = s.stack || '';
+  document.getElementById('sf-github').value = s.github || '';
+  document.getElementById('sf-instagram').value = s.instagram || '';
+  document.getElementById('sf-linkedin').value = s.linkedin || '';
+  document.getElementById('sf-youtube').value = s.youtube || '';
+  document.getElementById('accent-swatch').innerHTML = ACCENTS.map(c=>`<div style="background:${c}" class="${c===s.accent?'active':''}" onclick="pickAccent('${c}')"></div>`).join('');
 }
 function pickAccent(c){ siteData.settings.accent = c; loadSettingsForm(); }
 async function saveSettings(){
-  siteData.settings.name = document.getElementById('sf-name').value.trim() || 'Parshv';
-  siteData.settings.tagline = document.getElementById('sf-tagline').value.trim();
-  siteData.settings.heroTag = document.getElementById('sf-hero-tag').value.trim();
-  siteData.settings.heroDesc = document.getElementById('sf-hero-desc').value.trim();
-  siteData.settings.contactDesc = document.getElementById('sf-contact-desc').value.trim();
-  siteData.settings.stack = document.getElementById('sf-stack').value.trim();
-  siteData.settings.github = document.getElementById('sf-github').value.trim();
-  siteData.settings.instagram = document.getElementById('sf-instagram').value.trim();
-  siteData.settings.linkedin = document.getElementById('sf-linkedin').value.trim();
-  siteData.settings.youtube = document.getElementById('sf-youtube').value.trim();
+  const s = siteData.settings || {};
+  s.name = document.getElementById('sf-name').value.trim() || 'Parshv';
+  s.tagline = document.getElementById('sf-tagline').value.trim();
+  s.heroTag = document.getElementById('sf-hero-tag').value.trim();
+  s.heroDesc = document.getElementById('sf-hero-desc').value.trim();
+  s.contactDesc = document.getElementById('sf-contact-desc').value.trim();
+  s.stack = document.getElementById('sf-stack').value.trim();
+  s.github = document.getElementById('sf-github').value.trim();
+  s.instagram = document.getElementById('sf-instagram').value.trim();
+  s.linkedin = document.getElementById('sf-linkedin').value.trim();
+  s.youtube = document.getElementById('sf-youtube').value.trim();
+  siteData.settings = s;
   await saveData();
   renderSite();
   showToast('Settings saved');
 }
+
+// ----- Messages (unchanged) -----
 async function renderAdminMessages(){
   const msgs = await getAllMessages();
   document.getElementById('messages-list').innerHTML = msgs.length ? msgs.map(m=>`
@@ -1514,6 +1710,7 @@ async function deleteMessage(id){
   showToast('Deleted');
 }
 
+// ----- Upload helpers (unchanged) -----
 function uploadImage(inputId){ document.getElementById(inputId+'-file').click(); }
 function handleImageUpload(fileInput, targetId){
   const file = fileInput.files[0];
@@ -1525,7 +1722,7 @@ function handleImageUpload(fileInput, targetId){
 }
 
 /* =========================================================
-   DRAWER
+   DRAWER (updated with Thing edit support)
 ========================================================= */
 function openDrawer(title, form){
   document.getElementById('edit-drawer-title').textContent = title;
@@ -1563,12 +1760,13 @@ async function saveHero(){
 function openAboutEdit(){ loadAboutForm(); openDrawer('Edit about', document.getElementById('about-form')); }
 function openSettingsEdit(){ loadSettingsForm(); openDrawer('Settings', document.getElementById('settings-form')); }
 function openProjectEdit(id){ if(id) editProject(id); else openProjectForm(); openDrawer(id?'Edit project':'Add project', document.getElementById('project-form')); }
+function openThingEdit(id){ if(id) editThing(id); else openThingForm(); openDrawer(id?'Edit thing':'Add thing', document.getElementById('thing-form')); }
 function openGalleryEdit(id){ document.getElementById('gf-caption').value=''; document.getElementById('gf-img').value=''; document.getElementById('gf-id').value=''; if(id) editGalleryItem(id); openDrawer(id?'Edit photo':'Add photo', document.getElementById('gallery-form')); }
 function openBuildEdit(id){ document.getElementById('bf-name').value=''; document.getElementById('bf-desc').value=''; document.getElementById('bf-pct').value=50; document.getElementById('bf-pct-label').textContent=50; document.getElementById('bf-id').value=''; if(id) editBuildItem(id); openDrawer(id?'Edit item':'Add item', document.getElementById('build-form')); }
 function openTlEdit(id){ document.getElementById('tf-year').value=''; document.getElementById('tf-text').value=''; document.getElementById('tf-now').checked=false; document.getElementById('tf-id').value=''; if(id) editTlItem(id); openDrawer(id?'Edit event':'Add event', document.getElementById('tl-form')); }
 
 /* =========================================================
-   PARTICLES
+   PARTICLES (unchanged)
 ========================================================= */
 function initParticles(){
   const c = document.getElementById('particle-canvas'), ctx = c.getContext('2d');
@@ -1594,7 +1792,7 @@ function initParticles(){
 }
 
 /* =========================================================
-   CURSOR — fixed, always visible on fine pointers
+   CURSOR (unchanged)
 ========================================================= */
 const dot = document.getElementById('cursor-dot');
 const ring = document.getElementById('cursor-ring');
@@ -1662,7 +1860,7 @@ function spawnTrail(x, y) {
 }
 
 /* =========================================================
-   HORIZONTAL SCROLL (scroll-jacking) — fixed
+   HORIZONTAL SCROLL (unchanged)
 ========================================================= */
 function setupHorizontalScroll() {
   const container = document.getElementById('work-scroll-container');
@@ -1670,12 +1868,12 @@ function setupHorizontalScroll() {
   const track = document.getElementById('work-track');
   if (!container || !sticky || !track) return;
 
-  const featured = siteData.projects.filter(p => p.featured);
+  const featured = (siteData.projects || []).filter(p => p.featured);
   const numCards = featured.length + (editMode ? 1 : 0);
   const totalWidth = track.scrollWidth;
   const viewportHeight = window.innerHeight;
   const scrollableWidth = totalWidth - window.innerWidth + 40;
-  const extraHeight = numCards * 50;  // 50vh per card for smooth scroll distance
+  const extraHeight = numCards * 50;
   container.style.height = `calc(100vh + ${extraHeight}vh)`;
 
   function updateWorkScroll() {

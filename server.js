@@ -27,7 +27,7 @@ const messageSchema = new mongoose.Schema({
 const SiteData = mongoose.model('SiteData', siteDataSchema);
 const Message = mongoose.model('Message', messageSchema);
 
-// ----- Default data (copy exactly from your HTML's DEFAULT_DATA) -----
+// ----- Default data (copy from your HTML's DEFAULT_DATA) -----
 const DEFAULT_DATA = {
   settings: {
     name: 'Parshv',
@@ -127,7 +127,7 @@ app.delete('/api/messages/:id', async (req, res) => {
   }
 });
 
-// ----- Serve static frontend (your HTML) -----
+// ----- Serve static frontend -----
 app.use(express.static(__dirname));
 
 // ----- Start server -----
