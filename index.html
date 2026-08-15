@@ -224,6 +224,23 @@ section{ position:relative; z-index:1; padding:100px 6vw; max-width:1400px; marg
 .pcard p{ margin:0; color:var(--text-dim); font-size:14px; line-height:1.5; }
 .pcard .view{ margin-top:16px; font-size:13px; color:var(--text); display:flex; align-items:center; gap:6px; font-weight:600; }
 
+/* THINGS SECTION */
+#things .things-head{ padding:0 6vw; }
+.things-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; margin-top:40px; padding:0 6vw;
+}
+.thing-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  overflow:hidden; transition:transform .3s var(--ease), border-color .3s;
+  position:relative;
+}
+.thing-card:hover{ transform:translateY(-4px); border-color:rgba(110,139,255,0.3); }
+.thing-card .thumb{ height:180px; background-size:cover; background-position:center; }
+.thing-card .body{ padding:18px; }
+.thing-card .cat{ font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.1em; font-family:'JetBrains Mono',monospace; }
+.thing-card h3{ margin:4px 0 6px; font-size:18px; }
+.thing-card p{ color:var(--text-dim); font-size:13px; line-height:1.5; margin:0; }
+
 #lab{ background:radial-gradient(ellipse 800px 400px at 50% 0%, rgba(110,139,255,0.08), transparent); }
 .dome-wrap{ margin-top:40px; height:400px; position:relative; perspective:1200px; display:flex; align-items:center; justify-content:center; }
 @media (min-width:768px){ .dome-wrap{ height:480px; perspective:1400px; } }
@@ -474,6 +491,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
     <div class="logo-dot" id="logo-dot" title="Click 5x for developer mode"></div>
     <a href="#hero" class="nav-link" data-target="hero"><span class="liquid"></span>Home</a>
     <a href="#work" class="nav-link" data-target="work"><span class="liquid"></span>Work</a>
+    <a href="#things" class="nav-link" data-target="things"><span class="liquid"></span>Things</a>
     <a href="#about" class="nav-link" data-target="about"><span class="liquid"></span>About</a>
     <a href="#lab" class="nav-link" data-target="lab"><span class="liquid"></span>Lab</a>
     <a href="#contact" class="nav-cta">↗ Contact</a>
@@ -534,6 +552,15 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
       <div id="work-track"></div>
     </div>
   </div>
+</section>
+
+<!-- THINGS (all things) -->
+<section id="things">
+  <div class="things-head">
+    <div class="eyebrow">02.5 — All Things I've Made</div>
+    <h2 style="font-size:clamp(28px,7vw,48px); margin:0;">Everything I've built</h2>
+  </div>
+  <div class="things-grid" id="things-grid"></div>
 </section>
 
 <!-- LAB -->
@@ -633,7 +660,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
       <div class="field"><label>Passcode</label><input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') tryAdminLogin();"></div>
       <button class="send-btn" onclick="tryAdminLogin()">LOG IN</button>
       <div class="err" id="admin-err"></div>
-      <div class="hint">Password: <b>AdminPass123!</b><br>This panel writes to your browser's local storage.</div>
+      <div class="hint">Password: <b>AdminPass123!</b><br>This panel connects to MongoDB via the backend API.</div>
     </div>
   </div>
 
@@ -648,7 +675,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
     <div class="admin-side">
       <div class="admin-nav-item active" data-panel="dash">Dashboard</div>
       <div class="admin-nav-item" data-panel="projects">Projects</div>
-      <div class="admin-nav-item" data-panel="things">Things I Built</div>   <!-- kept for admin use -->
+      <div class="admin-nav-item" data-panel="things">Things I Built</div>
       <div class="admin-nav-item" data-panel="gallery">Gallery</div>
       <div class="admin-nav-item" data-panel="about">About</div>
       <div class="admin-nav-item" data-panel="building">Currently building</div>
@@ -667,7 +694,7 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
           <div class="admin-stat"><div class="n" id="dcount-messages">0</div><div class="l">Messages</div></div>
         </div>
         <p style="color:var(--text-dim); font-size:14px; max-width:560px; line-height:1.7;">
-          All data is stored in your browser's local storage. Edits are saved immediately.
+          Everything you edit here updates the live site immediately — projects, the dome gallery, your about copy, progress bars, the timeline and your social links are stored in MongoDB.
         </p>
       </div>
 
@@ -705,9 +732,9 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
         </div>
       </div>
 
-      <!-- Things I Built (admin only – not shown on frontend) -->
+      <!-- Things I Built -->
       <div class="admin-panel-section" id="panel-things">
-        <h2>Things I Built (admin only – not visible on the public site)</h2>
+        <h2>Things I Built</h2>
         <button class="add-btn" onclick="openThingForm()">+ Add thing</button>
         <div id="things-admin-list"></div>
         <div class="admin-form" id="thing-form" style="display:none;">
@@ -887,8 +914,9 @@ body.edit-mode .editable-wrap:hover .pencil-btn{ opacity:1; transform:scale(1); 
 
 <script>
 /* =========================================================
-   DATA LAYER — localStorage (no server needed)
+   DATA LAYER — fetch API to MongoDB backend
 ========================================================= */
+const API_BASE = ''; // leave empty because backend serves the frontend
 
 const DEFAULT_DATA = {
   settings: {
@@ -936,12 +964,11 @@ const DEFAULT_DATA = {
 
 let siteData = null;
 
-// Load from localStorage, or use defaults
-function loadData() {
-  const stored = localStorage.getItem('parshv_site_data');
-  if (stored) {
-    siteData = JSON.parse(stored);
-    // merge with defaults for missing fields
+async function loadData() {
+  try {
+    const res = await fetch(`${API_BASE}/api/site-data`);
+    const data = await res.json();
+    siteData = data || DEFAULT_DATA;
     siteData.settings = Object.assign({}, DEFAULT_DATA.settings, siteData.settings || {});
     siteData.about = Object.assign({}, DEFAULT_DATA.about, siteData.about || {});
     if (!siteData.projects) siteData.projects = DEFAULT_DATA.projects;
@@ -949,47 +976,53 @@ function loadData() {
     if (!siteData.gallery) siteData.gallery = DEFAULT_DATA.gallery;
     if (!siteData.building) siteData.building = DEFAULT_DATA.building;
     if (!siteData.timeline) siteData.timeline = DEFAULT_DATA.timeline;
-  } else {
+  } catch(e) {
+    console.error('Failed to load data, using defaults', e);
     siteData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    saveData(); // this will now be safe because updateDashboardCounts checks for elements
   }
 }
 
-function saveData() {
-  localStorage.setItem('parshv_site_data', JSON.stringify(siteData));
-  // update dashboard counts if open
-  updateDashboardCounts();
+async function saveData() {
+  try {
+    await fetch(`${API_BASE}/api/site-data`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(siteData)
+    });
+  } catch(e) {
+    console.error('Save failed', e);
+  }
 }
 
-// Messages stored separately
-function logMessage(msg) {
-  let msgs = JSON.parse(localStorage.getItem('parshv_messages') || '[]');
-  msgs.push(msg);
-  localStorage.setItem('parshv_messages', JSON.stringify(msgs));
+async function logMessage(msg) {
+  try {
+    await fetch(`${API_BASE}/api/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(msg)
+    });
+  } catch(e) { console.error(e); }
 }
 
-function getAllMessages() {
-  return JSON.parse(localStorage.getItem('parshv_messages') || '[]');
+async function countMessages() {
+  try {
+    const res = await fetch(`${API_BASE}/api/messages`);
+    const msgs = await res.json();
+    return msgs.length;
+  } catch(e) { return 0; }
 }
 
-function deleteMessageFromDB(id) {
-  let msgs = JSON.parse(localStorage.getItem('parshv_messages') || '[]');
-  msgs = msgs.filter(m => m._id !== id);
-  localStorage.setItem('parshv_messages', JSON.stringify(msgs));
+async function getAllMessages() {
+  try {
+    const res = await fetch(`${API_BASE}/api/messages`);
+    return await res.json();
+  } catch(e) { return []; }
 }
 
-function countMessages() {
-  return getAllMessages().length;
-}
-
-function updateDashboardCounts() {
-  const d = siteData;
-  const el = (id) => document.getElementById(id);
-  if (el('dcount-projects')) el('dcount-projects').textContent = (d.projects || []).length;
-  if (el('dcount-things')) el('dcount-things').textContent = (d.things || []).length;
-  if (el('dcount-gallery')) el('dcount-gallery').textContent = (d.gallery || []).length;
-  if (el('dcount-building')) el('dcount-building').textContent = (d.building || []).length;
-  if (el('dcount-messages')) el('dcount-messages').textContent = countMessages();
+async function deleteMessageFromDB(id) {
+  try {
+    await fetch(`${API_BASE}/api/messages/${id}`, { method: 'DELETE' });
+  } catch(e) { console.error(e); }
 }
 
 /* =========================================================
@@ -1051,6 +1084,41 @@ function renderSite() {
     }
     track.appendChild(a);
   });
+
+  // Things grid
+  const thingsGrid = document.getElementById('things-grid');
+  if (thingsGrid) {
+    thingsGrid.innerHTML = '';
+    (d.things || []).forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'thing-card';
+      card.innerHTML = `
+        <div class="thumb" style="background-image:url('${t.img || ''}')"></div>
+        <div class="body">
+          <div class="cat">${t.category || 'Thing'}</div>
+          <h3>${escapeHtml(t.name)}</h3>
+          <p>${escapeHtml(t.desc)}</p>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            ${t.live ? `<a href="${t.live}" target="_blank" class="btn btn-primary" style="padding:4px 12px; font-size:11px;">Live</a>` : ''}
+            ${t.github ? `<a href="${t.github}" target="_blank" class="btn btn-ghost" style="padding:4px 12px; font-size:11px;">Code</a>` : ''}
+          </div>
+        </div>`;
+      if (em) {
+        const pencil = document.createElement('div');
+        pencil.className = 'pencil-btn';
+        pencil.style.position = 'absolute';
+        pencil.style.top = '6px';
+        pencil.style.right = '6px';
+        pencil.style.zIndex = '20';
+        pencil.style.opacity = '1';
+        pencil.style.transform = 'none';
+        pencil.textContent = '✎';
+        pencil.onclick = (e) => { e.stopPropagation(); openThingEdit(t.id); };
+        card.appendChild(pencil);
+      }
+      thingsGrid.appendChild(card);
+    });
+  }
 
   // Dome gallery
   const dome = document.getElementById('dome');
@@ -1197,13 +1265,13 @@ if(localStorage.getItem('parshv-theme') === 'light') {
 /* =========================================================
    CONTACT
 ========================================================= */
-document.getElementById('cf-submit').addEventListener('click', ()=>{
+document.getElementById('cf-submit').addEventListener('click', async ()=>{
   const n = document.getElementById('cf-name').value.trim();
   const e = document.getElementById('cf-email').value.trim();
   const m = document.getElementById('cf-msg').value.trim();
   const s = document.getElementById('cf-status');
   if(!n||!e||!m){ s.style.color='var(--danger)'; s.textContent='Fill all fields.'; return; }
-  logMessage({name:n, email:e, msg:m, at:Date.now(), _id: 'msg'+Date.now()});
+  await logMessage({name:n, email:e, msg:m, at:Date.now()});
   s.style.color='#5be08a'; s.textContent='Sent!';
   document.getElementById('contact-form').reset();
 });
@@ -1264,12 +1332,12 @@ function checkAdminHash(){
 }
 addEventListener('hashchange', checkAdminHash);
 
-function tryAdminLogin(){
+async function tryAdminLogin(){
   if(document.getElementById('admin-pass').value === ADMIN_PASS){
     document.getElementById('admin-login').classList.remove('open');
     editMode = true;
     document.body.classList.add('edit-mode');
-    if(!siteData) loadData();
+    if(!siteData) await loadData();
     renderSite();
     showToast('Live edit on');
   } else {
@@ -1307,14 +1375,14 @@ document.querySelectorAll('.admin-nav-item').forEach(item=>{
   });
 });
 
-function enterAdmin(){
-  if(!siteData) loadData();
+async function enterAdmin(){
+  if(!siteData) await loadData();
   document.getElementById('dash-greeting').textContent = `Good ${timeOfDay()}, ${siteData.settings.name} 👋`;
   document.getElementById('dcount-projects').textContent = (siteData.projects||[]).length;
   document.getElementById('dcount-things').textContent = (siteData.things||[]).length;
   document.getElementById('dcount-gallery').textContent = (siteData.gallery||[]).length;
   document.getElementById('dcount-building').textContent = (siteData.building||[]).length;
-  document.getElementById('dcount-messages').textContent = countMessages();
+  document.getElementById('dcount-messages').textContent = await countMessages();
   renderAdminProjects();
   renderAdminThings();
   renderAdminGallery();
@@ -1353,7 +1421,7 @@ function editProject(id){
   document.getElementById('pf-live').value = p.live;
   document.getElementById('pf-featured').checked = p.featured;
 }
-function saveProject(){
+async function saveProject(){
   const id = document.getElementById('pf-id').value || 'p'+Date.now();
   const obj = {
     id,
@@ -1369,21 +1437,21 @@ function saveProject(){
   const idx = (siteData.projects||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.projects[idx] = obj;
   else siteData.projects.push(obj);
-  saveData();
+  await saveData();
   renderAdminProjects();
   renderSite();
   closeProjectForm();
   showToast('Project saved');
 }
-function deleteProject(id){
+async function deleteProject(id){
   siteData.projects = (siteData.projects||[]).filter(x=>x.id!==id);
-  saveData();
+  await saveData();
   renderAdminProjects();
   renderSite();
   showToast('Deleted');
 }
 
-// ----- Things (admin only) -----
+// ----- Things -----
 function renderAdminThings(){
   document.getElementById('things-admin-list').innerHTML = (siteData.things||[]).map(t=>`
     <div class="list-row"><div><div class="name">${escapeHtml(t.name)}</div><div class="sub">${t.category}</div></div>
@@ -1408,7 +1476,7 @@ function editThing(id){
   document.getElementById('tf-github').value = t.github;
   document.getElementById('tf-live').value = t.live;
 }
-function saveThing(){
+async function saveThing(){
   const id = document.getElementById('tf-id').value || 't'+Date.now();
   const obj = {
     id,
@@ -1423,14 +1491,17 @@ function saveThing(){
   const idx = (siteData.things||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.things[idx] = obj;
   else siteData.things.push(obj);
-  saveData();
+  await saveData();
   renderAdminThings();
+  renderSite();
+  closeThingForm();
   showToast('Thing saved');
 }
-function deleteThing(id){
+async function deleteThing(id){
   siteData.things = (siteData.things||[]).filter(x=>x.id!==id);
-  saveData();
+  await saveData();
   renderAdminThings();
+  renderSite();
   showToast('Deleted');
 }
 
@@ -1450,7 +1521,7 @@ function editGalleryItem(id){
   document.getElementById('gf-caption').value = g.caption;
   document.getElementById('gf-img').value = g.img;
 }
-function saveGalleryItem(){
+async function saveGalleryItem(){
   const id = document.getElementById('gf-id').value || 'g'+Date.now();
   const obj = {
     id,
@@ -1460,15 +1531,15 @@ function saveGalleryItem(){
   const idx = (siteData.gallery||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.gallery[idx] = obj;
   else siteData.gallery.push(obj);
-  saveData();
+  await saveData();
   renderAdminGallery();
   renderSite();
   closeGalleryForm();
   showToast('Saved');
 }
-function deleteGalleryItem(id){
+async function deleteGalleryItem(id){
   siteData.gallery = (siteData.gallery||[]).filter(x=>x.id!==id);
-  saveData();
+  await saveData();
   renderAdminGallery();
   renderSite();
   showToast('Deleted');
@@ -1484,7 +1555,7 @@ function loadAboutForm(){
   document.getElementById('af-stat-projects').value = a.statProjects || '';
   document.getElementById('af-stat-years').value = a.statYears || '';
 }
-function saveAbout(){
+async function saveAbout(){
   siteData.about = {
     headline: document.getElementById('af-headline').value.trim(),
     age: document.getElementById('af-age').value,
@@ -1493,7 +1564,7 @@ function saveAbout(){
     statProjects: document.getElementById('af-stat-projects').value.trim(),
     statYears: document.getElementById('af-stat-years').value.trim()
   };
-  saveData();
+  await saveData();
   renderSite();
   showToast('About saved');
 }
@@ -1516,7 +1587,7 @@ function editBuildItem(id){
   document.getElementById('bf-pct').value = b.pct;
   document.getElementById('bf-pct-label').textContent = b.pct;
 }
-function saveBuildItem(){
+async function saveBuildItem(){
   const id = document.getElementById('bf-id').value || 'b'+Date.now();
   const obj = {
     id,
@@ -1527,15 +1598,15 @@ function saveBuildItem(){
   const idx = (siteData.building||[]).findIndex(x=>x.id===id);
   if(idx>=0) siteData.building[idx] = obj;
   else siteData.building.push(obj);
-  saveData();
+  await saveData();
   renderAdminBuilding();
   renderSite();
   closeBuildForm();
   showToast('Saved');
 }
-function deleteBuildItem(id){
+async function deleteBuildItem(id){
   siteData.building = (siteData.building||[]).filter(x=>x.id!==id);
-  saveData();
+  await saveData();
   renderAdminBuilding();
   renderSite();
   showToast('Deleted');
@@ -1558,7 +1629,7 @@ function editTlItem(id){
   document.getElementById('tf-text').value = t.text;
   document.getElementById('tf-now').checked = t.now;
 }
-function saveTlItem(){
+async function saveTlItem(){
   const id = document.getElementById('tf-id').value || 'tl'+Date.now();
   const now = document.getElementById('tf-now').checked;
   if(now) (siteData.timeline||[]).forEach(t=>t.now=false);
@@ -1572,15 +1643,15 @@ function saveTlItem(){
   if(idx>=0) siteData.timeline[idx] = obj;
   else siteData.timeline.push(obj);
   siteData.timeline.sort((a,b)=>a.year.localeCompare(b.year));
-  saveData();
+  await saveData();
   renderAdminTimeline();
   renderSite();
   closeTlForm();
   showToast('Timeline updated');
 }
-function deleteTlItem(id){
+async function deleteTlItem(id){
   siteData.timeline = (siteData.timeline||[]).filter(x=>x.id!==id);
-  saveData();
+  await saveData();
   renderAdminTimeline();
   renderSite();
   showToast('Deleted');
@@ -1603,7 +1674,7 @@ function loadSettingsForm(){
   document.getElementById('accent-swatch').innerHTML = ACCENTS.map(c=>`<div style="background:${c}" class="${c===s.accent?'active':''}" onclick="pickAccent('${c}')"></div>`).join('');
 }
 function pickAccent(c){ siteData.settings.accent = c; loadSettingsForm(); }
-function saveSettings(){
+async function saveSettings(){
   const s = siteData.settings || {};
   s.name = document.getElementById('sf-name').value.trim() || 'Parshv';
   s.tagline = document.getElementById('sf-tagline').value.trim();
@@ -1616,23 +1687,23 @@ function saveSettings(){
   s.linkedin = document.getElementById('sf-linkedin').value.trim();
   s.youtube = document.getElementById('sf-youtube').value.trim();
   siteData.settings = s;
-  saveData();
+  await saveData();
   renderSite();
   showToast('Settings saved');
 }
 
 // ----- Messages -----
-function renderAdminMessages(){
-  const msgs = getAllMessages();
+async function renderAdminMessages(){
+  const msgs = await getAllMessages();
   document.getElementById('messages-list').innerHTML = msgs.length ? msgs.map(m=>`
     <div class="list-row"><div><div class="name">${escapeHtml(m.name)} — ${escapeHtml(m.email)}</div>
     <div class="sub">${escapeHtml(m.msg)}</div><div class="sub">${new Date(m.at).toLocaleString()}</div></div>
     <div class="acts"><span onclick="deleteMessage('${m._id}')">🗑</span></div></div>`).join('') : '<div style="color:var(--text-faint)">No messages yet.</div>';
 }
-function deleteMessage(id){
-  deleteMessageFromDB(id);
+async function deleteMessage(id){
+  await deleteMessageFromDB(id);
   renderAdminMessages();
-  document.getElementById('dcount-messages').textContent = countMessages();
+  document.getElementById('dcount-messages').textContent = await countMessages();
   showToast('Deleted');
 }
 
@@ -1673,12 +1744,12 @@ function openHeroEdit(){
   document.getElementById('hf-desc').value = siteData.settings.heroDesc;
   openDrawer('Edit hero', document.getElementById('hero-form'));
 }
-function saveHero(){
+async function saveHero(){
   siteData.settings.name = document.getElementById('hf-name').value.trim() || 'Parshv';
   siteData.settings.tagline = document.getElementById('hf-tagline').value.trim();
   siteData.settings.heroTag = document.getElementById('hf-hero-tag').value.trim();
   siteData.settings.heroDesc = document.getElementById('hf-desc').value.trim();
-  saveData();
+  await saveData();
   renderSite();
   closeDrawer();
   showToast('Hero updated');
@@ -1786,7 +1857,7 @@ function spawnTrail(x, y) {
 }
 
 /* =========================================================
-   HORIZONTAL SCROLL (fixed to scroll till the end)
+   HORIZONTAL SCROLL (fix: only scrolls when projects exist)
 ========================================================= */
 function setupHorizontalScroll() {
   const container = document.getElementById('work-scroll-container');
@@ -1795,15 +1866,17 @@ function setupHorizontalScroll() {
   if (!container || !sticky || !track) return;
 
   const featured = (siteData.projects || []).filter(p => p.featured);
-  const numCards = featured.length;
-  // Calculate total track width (each card is about 480px + gap)
-  const cardWidth = Math.min(85, 480) * (innerWidth/100) || 480; // approximate
+  if (featured.length === 0) {
+    container.style.height = '100vh';
+    track.style.transform = 'translateX(0)';
+    return;
+  }
+
+  // Calculate total width
+  const cardWidth = Math.min(85, 480) * (innerWidth/100) || 480;
   const gap = window.innerWidth >= 1200 ? 28 : 20;
-  const totalWidth = numCards * (cardWidth + gap) - gap + 40; // padding
+  const totalWidth = featured.length * (cardWidth + gap) - gap + 40;
   const scrollableWidth = Math.max(0, totalWidth - window.innerWidth + 40);
-  // Extra height: we need to scroll enough to reveal the last card completely.
-  // Each 100vh scroll moves the track by roughly the viewport width's worth of pixels.
-  // We'll use a heuristic: extra height = scrollableWidth / (window.innerWidth / 100) * 0.8
   const extraHeight = Math.max(50, scrollableWidth / (window.innerWidth / 100) * 0.8);
   container.style.height = `calc(100vh + ${extraHeight}vh)`;
 
@@ -1818,7 +1891,6 @@ function setupHorizontalScroll() {
       const maxTranslate = Math.max(0, scrollableWidth);
       track.style.transform = `translateX(-${progress * maxTranslate}px)`;
     } else if (containerTop <= 0) {
-      // fully scrolled past – lock at end
       track.style.transform = `translateX(-${Math.max(0, scrollableWidth)}px)`;
     } else {
       track.style.transform = 'translateX(0)';
@@ -1835,10 +1907,7 @@ function setupHorizontalScroll() {
       ticking = true;
     }
   });
-  window.addEventListener('resize', () => {
-    // recalculate on resize
-    setTimeout(setupHorizontalScroll, 200);
-  });
+  window.addEventListener('resize', () => { setTimeout(setupHorizontalScroll, 200); });
   updateWorkScroll();
 }
 
@@ -1846,7 +1915,7 @@ function setupHorizontalScroll() {
    INIT
 ========================================================= */
 async function initSite(){
-  loadData();
+  await loadData();
   renderSite();
   initTypewriter();
   updateClock();

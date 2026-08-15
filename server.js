@@ -12,6 +12,7 @@ const siteDataSchema = new mongoose.Schema({
   settings: Object,
   about: Object,
   projects: Array,
+  things: Array,   // <-- new collection for "Things I Built"
   gallery: Array,
   building: Array,
   timeline: Array
@@ -27,7 +28,7 @@ const messageSchema = new mongoose.Schema({
 const SiteData = mongoose.model('SiteData', siteDataSchema);
 const Message = mongoose.model('Message', messageSchema);
 
-// ----- Default data (copy from your HTML's DEFAULT_DATA) -----
+// ----- Default data (matching your frontend) -----
 const DEFAULT_DATA = {
   settings: {
     name: 'Parshv',
@@ -56,6 +57,10 @@ const DEFAULT_DATA = {
     { id:'p3', name:'AI Experiment', desc:'A small experiment training a model to classify handwritten notes and turn them into structured to-do lists.', category:'AI', tech:'Python, PyTorch', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200', github:'https://github.com', live:'', featured:true },
     { id:'p4', name:'Robotics Project', desc:'A line-following robot built from scratch, with a custom PID controller tuned by hand over dozens of test runs.', category:'Robotics', tech:'C++, Arduino', img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200', github:'https://github.com', live:'', featured:true }
   ],
+  things: [
+    { id:'t1', name:'Chat App', desc:'Real-time messaging app with websockets.', category:'Web Development', tech:'Node.js, Socket.io, React', img:'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800', github:'https://github.com', live:'' },
+    { id:'t2', name:'Music Bot', desc:'Discord bot that plays music from YouTube.', category:'Experiment', tech:'Python, Discord.py', img:'https://images.unsplash.com/photo-1550439062-609e1531270e?q=80&w=800', github:'https://github.com', live:'' }
+  ],
   gallery: [
     { id:'g1', caption:'UI concept', img:'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800' },
     { id:'g2', caption:'Robotics build', img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800' },
@@ -69,14 +74,14 @@ const DEFAULT_DATA = {
     { id:'b2', name:'Robotics v2', desc:'Rebuilding the line follower with a smarter sensor array and a faster PID loop.', pct:45 }
   ],
   timeline: [
-    { id:'t1', year:'2023', text:'Started coding', now:false },
-    { id:'t2', year:'2024', text:'Built first major projects', now:false },
-    { id:'t3', year:'2025', text:'Started exploring AI', now:false },
-    { id:'t4', year:'2026', text:'Building bigger projects', now:true }
+    { id:'tl1', year:'2023', text:'Started coding', now:false },
+    { id:'tl2', year:'2024', text:'Built first major projects', now:false },
+    { id:'tl3', year:'2025', text:'Started exploring AI', now:false },
+    { id:'tl4', year:'2026', text:'Building bigger projects', now:true }
   ]
 };
 
-// ----- API routes -----
+// ----- API Routes -----
 app.get('/api/site-data', async (req, res) => {
   try {
     let data = await SiteData.findOne();
@@ -127,7 +132,7 @@ app.delete('/api/messages/:id', async (req, res) => {
   }
 });
 
-// ----- Serve static frontend -----
+// ----- Serve static frontend (your index.html) -----
 app.use(express.static(__dirname));
 
 // ----- Start server -----
