@@ -212,7 +212,7 @@ section{ position:relative; z-index:1; padding:100px 6vw; max-width:1400px; marg
 .pcard{
   flex:0 0 min(85vw,480px); background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
   overflow:hidden; text-decoration:none; color:var(--text); transition:transform .4s var(--ease), border-color .4s;
-  display:block;
+  display:block; position:relative;
 }
 .pcard:hover{ transform:translateY(-8px); border-color:rgba(110,139,255,0.45); }
 .pcard .thumb{ height:220px; background-size:cover; background-position:center; position:relative; }
@@ -1211,6 +1211,7 @@ function renderSite() {
   document.getElementById('footer-year').textContent = new Date().getFullYear();
   setupHorizontalScroll();
   applyDome();
+  initRevealObserver();
 }
 
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1302,6 +1303,31 @@ function updateScrollProgress(){
 addEventListener('scroll', updateScrollProgress);
 
 /* =========================================================
+   REVEAL ON SCROLL
+========================================================= */
+let revealObserver = null;
+function initRevealObserver(){
+  const els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(el => el.classList.add('in'));
+    return;
+  }
+  if (!revealObserver) {
+    revealObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  }
+  els.forEach(el=>{
+    if (!el.classList.contains('in')) revealObserver.observe(el);
+  });
+}
+
+/* =========================================================
    DOME
 ========================================================= */
 let domeAngle=0, domeDragging=false, sx=0, sa=0, auto=true;
@@ -1372,6 +1398,11 @@ document.querySelectorAll('.admin-nav-item').forEach(item=>{
     if(item.dataset.panel === 'messages') renderAdminMessages();
     if(item.dataset.panel === 'settings') loadSettingsForm();
     if(item.dataset.panel === 'things') renderAdminThings();
+    if(item.dataset.panel === 'about') loadAboutForm();
+    if(item.dataset.panel === 'projects') renderAdminProjects();
+    if(item.dataset.panel === 'gallery') renderAdminGallery();
+    if(item.dataset.panel === 'building') renderAdminBuilding();
+    if(item.dataset.panel === 'timeline') renderAdminTimeline();
   });
 });
 
@@ -1381,7 +1412,6 @@ async function enterAdmin(){
   document.getElementById('dcount-projects').textContent = (siteData.projects||[]).length;
   document.getElementById('dcount-things').textContent = (siteData.things||[]).length;
   document.getElementById('dcount-gallery').textContent = (siteData.gallery||[]).length;
-  document.getElementById('dcount-building').textContent = (siteData.building||[]).length;
   document.getElementById('dcount-messages').textContent = await countMessages();
   renderAdminProjects();
   renderAdminThings();
@@ -1566,6 +1596,7 @@ async function saveAbout(){
   };
   await saveData();
   renderSite();
+  closeDrawer();
   showToast('About saved');
 }
 
@@ -1720,8 +1751,23 @@ function handleImageUpload(fileInput, targetId){
 
 /* =========================================================
    DRAWER
+   Forms (about-form, project-form, thing-form, gallery-form,
+   build-form, tl-form, settings-form) live permanently inside
+   their admin panel sections. When opened via the drawer (from
+   a pencil icon on the live site) we temporarily move the form
+   node into the drawer, then MUST put it back exactly where it
+   came from when the drawer closes — otherwise the admin panel
+   loses its form and things like "+ Add project" / "+ Add thing"
+   stop working after the drawer has been used once.
 ========================================================= */
+const formHomes = {};
+function rememberFormHome(form){
+  if(!formHomes[form.id]){
+    formHomes[form.id] = { parent: form.parentNode, next: form.nextSibling };
+  }
+}
 function openDrawer(title, form){
+  rememberFormHome(form);
   document.getElementById('edit-drawer-title').textContent = title;
   const body = document.getElementById('edit-drawer-body');
   body.innerHTML = '';
@@ -1735,7 +1781,26 @@ function closeDrawer(){
   document.getElementById('edit-drawer-backdrop').classList.remove('open');
   const body = document.getElementById('edit-drawer-body');
   const form = body.firstElementChild;
-  if(form){ document.getElementById('admin-view').appendChild(form); form.style.display = 'none'; }
+  if(form){
+    const home = formHomes[form.id];
+    if(home && home.parent){
+      if(home.next && home.next.parentNode === home.parent){
+        home.parent.insertBefore(form, home.next);
+      } else {
+        home.parent.appendChild(form);
+      }
+    } else {
+      document.getElementById('admin-view').appendChild(form);
+    }
+    // Forms that live inline in an admin panel (about/settings) should
+    // stay visible there; popup-style forms (project/thing/gallery/build/tl/hero)
+    // should go back to hidden until explicitly opened again.
+    if (form.id === 'about-form' || form.id === 'settings-form') {
+      form.style.display = 'block';
+    } else {
+      form.style.display = 'none';
+    }
+  }
 }
 function openHeroEdit(){
   document.getElementById('hf-name').value = siteData.settings.name;
@@ -1857,8 +1922,15 @@ function spawnTrail(x, y) {
 }
 
 /* =========================================================
-   HORIZONTAL SCROLL (fix: only scrolls when projects exist)
+   HORIZONTAL SCROLL ("Things I've built" featured strip)
+   Measures the ACTUAL rendered width of the track instead of
+   estimating it, so the sticky section never scrolls past the
+   last card and the extra scroll distance always matches the
+   real number of projects.
 ========================================================= */
+let __workScrollHandler = null;
+let __workResizeHandler = null;
+
 function setupHorizontalScroll() {
   const container = document.getElementById('work-scroll-container');
   const sticky = document.querySelector('.work-track-sticky');
@@ -1866,49 +1938,53 @@ function setupHorizontalScroll() {
   if (!container || !sticky || !track) return;
 
   const featured = (siteData.projects || []).filter(p => p.featured);
+
+  // Clean up any previously attached listeners before re-computing
+  if (__workScrollHandler) { window.removeEventListener('scroll', __workScrollHandler); __workScrollHandler = null; }
+  if (__workResizeHandler) { window.removeEventListener('resize', __workResizeHandler); __workResizeHandler = null; }
+
   if (featured.length === 0) {
     container.style.height = '100vh';
     track.style.transform = 'translateX(0)';
     return;
   }
 
-  // Calculate total width
-  const cardWidth = Math.min(85, 480) * (innerWidth/100) || 480;
-  const gap = window.innerWidth >= 1200 ? 28 : 20;
-  const totalWidth = featured.length * (cardWidth + gap) - gap + 40;
-  const scrollableWidth = Math.max(0, totalWidth - window.innerWidth + 40);
-  const extraHeight = Math.max(50, scrollableWidth / (window.innerWidth / 100) * 0.8);
-  container.style.height = `calc(100vh + ${extraHeight}vh)`;
+  // Wait a frame so the browser has laid out the freshly-rendered cards
+  requestAnimationFrame(() => {
+    const trackWidth = track.scrollWidth;
+    const viewportWidth = sticky.clientWidth;
+    const scrollableWidth = Math.max(0, trackWidth - viewportWidth);
+    const extraHeightVh = scrollableWidth > 0 ? (scrollableWidth / window.innerHeight) * 100 : 0;
+    container.style.height = `calc(100vh + ${extraHeightVh}vh)`;
 
-  function updateWorkScroll() {
-    const rect = container.getBoundingClientRect();
-    const containerTop = rect.top;
-    const containerHeight = rect.height;
-    const viewportHeight = window.innerHeight;
+    function updateWorkScroll() {
+      const rect = container.getBoundingClientRect();
+      const containerTop = rect.top;
+      const containerHeight = rect.height;
+      const viewportHeight = window.innerHeight;
+      const scrollRange = containerHeight - viewportHeight;
 
-    if (containerTop <= 0 && containerTop + containerHeight > viewportHeight) {
-      const progress = Math.min(1, Math.max(0, -containerTop / (containerHeight - viewportHeight)));
-      const maxTranslate = Math.max(0, scrollableWidth);
-      track.style.transform = `translateX(-${progress * maxTranslate}px)`;
-    } else if (containerTop <= 0) {
-      track.style.transform = `translateX(-${Math.max(0, scrollableWidth)}px)`;
-    } else {
-      track.style.transform = 'translateX(0)';
+      if (scrollRange <= 0) {
+        track.style.transform = 'translateX(0)';
+        return;
+      }
+      const progress = Math.min(1, Math.max(0, -containerTop / scrollRange));
+      track.style.transform = `translateX(-${progress * scrollableWidth}px)`;
     }
-  }
 
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        updateWorkScroll();
-        ticking = false;
-      });
-      ticking = true;
-    }
+    let ticking = false;
+    __workScrollHandler = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => { updateWorkScroll(); ticking = false; });
+        ticking = true;
+      }
+    };
+    __workResizeHandler = () => { setTimeout(setupHorizontalScroll, 200); };
+
+    window.addEventListener('scroll', __workScrollHandler);
+    window.addEventListener('resize', __workResizeHandler);
+    updateWorkScroll();
   });
-  window.addEventListener('resize', () => { setTimeout(setupHorizontalScroll, 200); });
-  updateWorkScroll();
 }
 
 /* =========================================================
