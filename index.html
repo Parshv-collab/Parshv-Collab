@@ -2039,7 +2039,12 @@
                     <p class="contact-desc" id="contact-desc">Got a project, a weird idea, or something that needs building? Send it over.</p>
                     <div class="social-row" id="social-row"></div>
                     <div style="margin-top:20px;">
-                        <a href="tel:+919082007724" class="btn btn-ghost">📞 +91 90820 07724</a>
+                        <a href="https://wa.me/919082007724" target="_blank" class="btn btn-ghost">
+                            📞 +91 90820 07724 (WhatsApp)
+                        </a>
+                    </div>
+                    <div style="margin-top:12px; font-size:13px; color:var(--text-faint); font-family:'JetBrains Mono',monospace;">
+                        ⚡ No calls, please – WhatsApp only for faster replies.
                     </div>
                     <button class="btn btn-ghost" style="margin-top:16px;" onclick="copyEmail()">✉ Copy email</button>
                 </div>
@@ -2681,11 +2686,10 @@
 
             // Social links
             const s = d.settings;
+            // Social links - only GitHub and Instagram
             document.getElementById('social-row').innerHTML = `
-            <a href="${s.github || '#'}" target="_blank">GitHub</a>
-            <a href="${s.instagram || '#'}" target="_blank">Instagram</a>
-            <a href="${s.linkedin || '#'}" target="_blank">LinkedIn</a>
-            <a href="${s.youtube || '#'}" target="_blank">YouTube</a>`;
+                <a href="${s.github || '#'}" target="_blank">GitHub</a>
+                <a href="${s.instagram || '#'}" target="_blank">Instagram</a>`;
 
             document.getElementById('footer-year').textContent = new Date().getFullYear();
             setupHorizontalScroll();
