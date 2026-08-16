@@ -6,6 +6,7 @@
     <title>PARSHV — Developer, Builder, Explorer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         /* ── reset & vars ── */
         :root {
@@ -376,12 +377,91 @@
             height: 1px;
             background: var(--accent);
         }
+        #hero-3d-container {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          overflow: hidden;
+        }
+        #hero-3d-container canvas {
+          display: block;
+          width: 100% !important;
+          height: 100% !important;
+        }
+
+        /* 3D carousel cards */
+        .pcard-3d {
+          position: absolute;
+          width: min(80vw, 340px);
+          aspect-ratio: 4/5;
+          background: var(--panel);
+          border: 1px solid var(--panel-border);
+          border-radius: var(--radius);
+          overflow: hidden;
+          text-decoration: none;
+          color: var(--text);
+          transition: all 0.3s var(--ease);
+          cursor: pointer;
+          backface-visibility: hidden;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+          display: flex;
+          flex-direction: column;
+        }
+        .pcard-3d .thumb { height:60%; background-size:cover; background-position:center; position:relative; }
+        .pcard-3d .thumb::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5)); }
+        .pcard-3d .body { padding:18px; flex:1; display:flex; flex-direction:column; justify-content:space-between; }
+        .pcard-3d .cat { font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:0.14em; font-family:'JetBrains Mono',monospace; margin-bottom:4px; }
+        .pcard-3d h3 { margin:0 0 4px; font-size:18px; line-height:1.2; }
+        .pcard-3d p { margin:0; color:var(--text-dim); font-size:13px; line-height:1.4; flex:1; }
+        .pcard-3d .view { margin-top:8px; font-size:12px; color:var(--text); display:flex; align-items:center; gap:4px; font-weight:600; }
+        .pcard-3d:hover { transform:scale(1.05) !important; border-color:rgba(110,139,255,0.45); z-index:10; }
+
+        .carousel-controls {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 12px;
+          z-index: 20;
+        }
+        .carousel-btn {
+          width: 44px; height: 44px; border-radius: 50%;
+          border: 1px solid var(--panel-border);
+          background: var(--bg-soft);
+          color: var(--text);
+          font-size: 18px;
+          cursor: pointer;
+          backdrop-filter: blur(8px);
+          transition: all .2s;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .carousel-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .carousel-indicator {
+          position: absolute;
+          bottom: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+          color: var(--text-faint);
+          font-size: 12px;
+          font-family: 'JetBrains Mono', monospace;
+          letter-spacing: 0.1em;
+          z-index: 20;
+        }
+        @media (max-width:600px) {
+          .pcard-3d { width: min(80vw, 260px); }
+          .carousel-controls { bottom: 10px; }
+          .carousel-indicator { bottom: 70px; }
+        }
         #hero {
             min-height: 90vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             padding-top: 80px;
+            position: relative;
+            overflow: hidden;
         }
         .hero-tag {
             font-family: 'JetBrains Mono', monospace;
@@ -607,96 +687,32 @@
         #work {
             padding-left: 0;
             padding-right: 0;
+            position: relative;
         }
         #work .work-head {
             padding: 0 6vw;
         }
         .work-scroll-container {
             position: relative;
-        }
-        .work-track-sticky {
-            position: sticky;
-            top: 0;
-            height: 100vh;
+            height: 80vh;
+            min-height: 500px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            perspective: 1200px;
             overflow: hidden;
-            background: var(--bg);
         }
         #work-track {
-            display: flex;
-            gap: 20px;
-            padding: 0 6vw;
-            will-change: transform;
-        }
-        @media (min-width:1200px) {
-            #work-track {
-                gap: 28px;
-                padding: 0 8vw;
-            }
-        }
-        .pcard {
-            flex: 0 0 min(85vw, 480px);
-            background: var(--panel);
-            border: 1px solid var(--panel-border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            text-decoration: none;
-            color: var(--text);
-            transition: transform .4s var(--ease), border-color .4s;
-            display: block;
-            position: relative;
-        }
-        .pcard:hover {
-            transform: translateY(-8px);
-            border-color: rgba(110, 139, 255, 0.45);
-        }
-        .pcard .thumb {
-            height: 220px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        @media (min-width:768px) {
-            .pcard .thumb {
-                height: 260px;
-            }
-        }
-        .pcard .thumb::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.5));
-        }
-        .pcard .body {
-            padding: 22px;
-        }
-        .pcard .cat {
-            font-size: 11px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 8px;
-        }
-        .pcard h3 {
-            margin: 0 0 8px;
-            font-size: 20px;
-        }
-        .pcard p {
-            margin: 0;
-            color: var(--text-dim);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        .pcard .view {
-            margin-top: 16px;
-            font-size: 13px;
-            color: var(--text);
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-weight: 600;
+            justify-content: center;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .pcard {
+            display: none; /* hide old style */
         }
         #things .things-head {
             padding: 0 6vw;
@@ -744,6 +760,28 @@
             font-size: 13px;
             line-height: 1.5;
             margin: 0;
+        }
+        .thing-card .thing-links {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .thing-card .thing-links a {
+            padding: 4px 12px;
+            font-size: 11px;
+            border-radius: 999px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .thing-card .thing-links a.live {
+            background: var(--accent-grad);
+            color: #fff;
+        }
+        .thing-card .thing-links a.code {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            color: var(--text);
         }
         #lab {
             background: radial-gradient(ellipse 800px 400px at 50% 0%, rgba(110, 139, 255, 0.08), transparent);
@@ -1847,7 +1885,6 @@
             padding: 12px 0;
             font-family: 'JetBrains Mono', monospace;
         }
-        /* things grid for "Things I Built" in the live site */
         #things-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1861,52 +1898,25 @@
                 grid-template-columns: 1fr;
             }
         }
-        .thing-card .thumb {
-            height: 180px;
-            background-size: cover;
-            background-position: center;
-        }
-        .thing-card .body {
-            padding: 18px;
-        }
-        .thing-card .cat {
-            font-size: 11px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .thing-card h3 {
-            margin: 4px 0 6px;
-            font-size: 18px;
-        }
-        .thing-card p {
-            color: var(--text-dim);
-            font-size: 13px;
-            line-height: 1.5;
-            margin: 0;
-        }
-        .thing-card .thing-links {
-            margin-top: 10px;
+        .work-scroll-container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            min-height: 500px;
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            overflow: hidden;
         }
-        .thing-card .thing-links a {
-            padding: 4px 12px;
-            font-size: 11px;
-            border-radius: 999px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .thing-card .thing-links a.live {
-            background: var(--accent-grad);
-            color: #fff;
-        }
-        .thing-card .thing-links a.code {
-            background: var(--panel);
-            border: 1px solid var(--panel-border);
-            color: var(--text);
+        #work-track {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+            position: relative;
         }
     </style>
 </head>
@@ -1943,7 +1953,8 @@
 
         <!-- HERO -->
         <section id="hero">
-            <div class="editable-wrap">
+            <div id="hero-3d-container"></div>
+            <div class="editable-wrap" style="position:relative; z-index:2;">
                 <div class="pencil-btn" onclick="openHeroEdit()">✎</div>
                 <div class="hero-tag mono" id="hero-tag-text">● AVAILABLE FOR PROJECTS</div>
                 <h1 class="hero-title">HEY, I'M<br><span class="grad glitch" id="hero-name" data-text="PARSHV">PARSHV</span></h1>
@@ -1983,17 +1994,29 @@
             </div>
         </section>
 
-        <!-- WORK (featured projects) -->
+        <!-- WORK (3D Carousel) -->
         <section id="work">
             <div class="work-head">
                 <div class="eyebrow">02 — Featured work</div>
                 <h2 style="font-size:clamp(28px,7vw,48px); margin:0;">Things I've built</h2>
             </div>
             <div class="work-scroll-container" id="work-scroll-container">
-                <div class="work-track-sticky">
-                    <div id="work-track"></div>
+                <div id="work-track"></div>
+                <div class="carousel-indicator" id="carousel-indicator">0 / 0</div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="carousel-prev">‹</button>
+                    <button class="carousel-btn" id="carousel-next">›</button>
                 </div>
             </div>
+        </section>
+
+        <!-- THINGS -->
+        <section id="things">
+            <div class="things-head">
+                <div class="eyebrow">02b — Things I Built</div>
+                <h2 style="font-size:clamp(28px,7vw,48px); margin:0;">More stuff I've made</h2>
+            </div>
+            <div id="things-grid"></div>
         </section>
 
         <!-- LAB -->
@@ -2354,7 +2377,7 @@
         /* =========================================================
            DATA LAYER — fetch API to MongoDB backend
         ========================================================= */
-        const API_BASE = ''; // leave empty because backend serves the frontend
+        const API_BASE = '';
 
         const DEFAULT_DATA = {
             settings: {
@@ -2500,7 +2523,18 @@
            RENDER
         ========================================================= */
         function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;',
-                '"': '&quot;', "'": '&#39;' }[c])); }
+                    '"': '&quot;', "'": '&#39;' }[c])); }
+
+        let carouselAngle = 0;
+        let carouselTargetAngle = 0;
+        let carouselCards = [];
+        let carouselRadius = 400;
+        let carouselTotal = 0;
+        let carouselAnimId = null;
+        let carouselAutoTimer = null;
+        let isCarouselDragging = false;
+        let carouselStartX = 0;
+        let carouselStartAngle = 0;
 
         function renderSite() {
             const d = siteData;
@@ -2528,22 +2562,48 @@
             document.getElementById('stat-projects').textContent = about.statProjects || '12+';
             document.getElementById('stat-years').textContent = about.statYears || '03+';
 
-            // Work (featured projects)
+            // ── WORK: 3D Carousel ──
             const track = document.getElementById('work-track');
             track.innerHTML = '';
-            (d.projects || []).filter(p => p.featured).forEach(p => {
-                const a = document.createElement('a');
-                a.href = 'javascript:void(0)';
-                a.className = 'pcard';
-                a.onclick = () => em ? openProjectEdit(p.id) : openProjectModal(p.id);
-                a.innerHTML = `
+            const featured = (d.projects || []).filter(p => p.featured);
+            carouselTotal = featured.length;
+
+            if (carouselTotal === 0) {
+                track.innerHTML = '<div style="color:var(--text-faint); text-align:center; padding:40px;">No featured projects yet.</div>';
+                document.getElementById('carousel-indicator').textContent = '0 / 0';
+                return;
+            }
+
+            // Calculate card size based on viewport
+            const cardWidth = Math.min(window.innerWidth * 0.28, 340, 400);
+            const cardHeight = cardWidth * 1.25;
+            carouselRadius = Math.min(window.innerWidth * 0.45, 500);
+
+            const angleStep = (2 * Math.PI) / carouselTotal;
+            carouselCards = [];
+
+            featured.forEach((p, i) => {
+                const card = document.createElement('div');
+                card.className = 'pcard-3d';
+                const angle = i * angleStep;
+                const x = carouselRadius * Math.sin(angle);
+                const z = carouselRadius * Math.cos(angle);
+                card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${-angle}rad)`;
+                card.style.width = cardWidth + 'px';
+                card.style.height = cardHeight + 'px';
+                card.innerHTML = `
               <div class="thumb" style="background-image:url('${p.img || ''}')"></div>
               <div class="body">
-                <div class="cat">${p.category || 'Project'}</div>
-                <h3>${escapeHtml(p.name)}</h3>
-                <p>${escapeHtml(p.desc)}</p>
+                <div>
+                  <div class="cat">${p.category || 'Project'}</div>
+                  <h3>${escapeHtml(p.name)}</h3>
+                  <p>${escapeHtml(p.desc)}</p>
+                </div>
                 <div class="view">View →</div>
-              </div>`;
+              </div>
+            `;
+                card.dataset.index = i;
+                card.addEventListener('click', () => em ? openProjectEdit(p.id) : openProjectModal(p.id));
                 if (em) {
                     const pencil = document.createElement('div');
                     pencil.className = 'pencil-btn';
@@ -2556,12 +2616,99 @@
                     pencil.textContent = '✎';
                     pencil.onclick = (e) => { e.stopPropagation();
                         openProjectEdit(p.id); };
-                    a.appendChild(pencil);
+                    card.appendChild(pencil);
                 }
-                track.appendChild(a);
+                track.appendChild(card);
+                carouselCards.push(card);
             });
 
-            // Things grid (separate section)
+            function updateCarousel(angle) {
+                const half = carouselTotal / 2;
+                const step = (2 * Math.PI) / carouselTotal;
+                carouselCards.forEach((card, i) => {
+                    const idx = (i + Math.round(angle / step)) % carouselTotal;
+                    const a = (idx - half) * step;
+                    const x = carouselRadius * Math.sin(a);
+                    const z = carouselRadius * Math.cos(a);
+                    const scale = 0.5 + 0.5 * (z / carouselRadius + 1) / 2;
+                    const opacity = 0.2 + 0.8 * (z / carouselRadius + 1) / 2;
+                    card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${-a}rad) scale(${scale})`;
+                    card.style.opacity = opacity;
+                    card.style.zIndex = Math.round(z + carouselRadius);
+                });
+                const idx = Math.round(angle / step) % carouselTotal;
+                document.getElementById('carousel-indicator').textContent = `${(idx + carouselTotal) % carouselTotal + 1} / ${carouselTotal}`;
+            }
+
+            function animateCarousel() {
+                carouselAngle += (carouselTargetAngle - carouselAngle) * 0.08;
+                updateCarousel(carouselAngle);
+                carouselAnimId = requestAnimationFrame(animateCarousel);
+            }
+
+            // Controls
+            document.getElementById('carousel-prev').onclick = () => {
+                carouselTargetAngle -= angleStep;
+            };
+            document.getElementById('carousel-next').onclick = () => {
+                carouselTargetAngle += angleStep;
+            };
+
+            // Drag
+            const container = document.getElementById('work-scroll-container');
+            container.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.carousel-btn')) return;
+                isCarouselDragging = true;
+                carouselStartX = e.clientX;
+                carouselStartAngle = carouselTargetAngle;
+                container.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isCarouselDragging) return;
+                const delta = (e.clientX - carouselStartX) * 0.005;
+                carouselTargetAngle = carouselStartAngle - delta;
+            });
+            window.addEventListener('mouseup', () => {
+                isCarouselDragging = false;
+                container.style.cursor = 'grab';
+            });
+
+            // Touch
+            container.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.carousel-btn')) return;
+                isCarouselDragging = true;
+                carouselStartX = e.touches[0].clientX;
+                carouselStartAngle = carouselTargetAngle;
+            }, { passive: true });
+            container.addEventListener('touchmove', (e) => {
+                if (!isCarouselDragging) return;
+                const delta = (e.touches[0].clientX - carouselStartX) * 0.005;
+                carouselTargetAngle = carouselStartAngle - delta;
+            }, { passive: true });
+            container.addEventListener('touchend', () => { isCarouselDragging = false; });
+
+            // Auto-rotate
+            let autoRotate = true;
+            container.addEventListener('mouseenter', () => { autoRotate = false; });
+            container.addEventListener('mouseleave', () => { autoRotate = true; });
+            container.addEventListener('touchstart', () => { autoRotate = false; });
+            container.addEventListener('touchend', () => { autoRotate = true; });
+
+            if (carouselAutoTimer) clearInterval(carouselAutoTimer);
+            carouselAutoTimer = setInterval(() => {
+                if (!isCarouselDragging && autoRotate) {
+                    carouselTargetAngle += angleStep * 0.005;
+                }
+            }, 30);
+
+            // Init
+            carouselAngle = 0;
+            carouselTargetAngle = 0;
+            updateCarousel(0);
+            if (carouselAnimId) cancelAnimationFrame(carouselAnimId);
+            animateCarousel();
+
+            // ── Things grid ──
             const thingsGrid = document.getElementById('things-grid');
             if (thingsGrid) {
                 thingsGrid.innerHTML = '';
@@ -2600,19 +2747,19 @@
                 }
             }
 
-            // Dome gallery
+            // ── Dome gallery ──
             const dome = document.getElementById('dome');
             dome.innerHTML = '';
             const items = d.gallery || [];
             const n = items.length || 1;
-            const radius = innerWidth < 768 ? 200 : 320;
+            const radiusDome = innerWidth < 768 ? 200 : 320;
             items.forEach((g, i) => {
                 const el = document.createElement('div');
                 el.className = 'dome-item';
                 const imgUrl = g.img && g.img.trim() ? g.img :
                     'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800';
                 el.style.backgroundImage = `url('${imgUrl}')`;
-                el.style.transform = `rotateY(${(360/n)*i}deg) translateZ(${radius}px)`;
+                el.style.transform = `rotateY(${(360/n)*i}deg) translateZ(${radiusDome}px)`;
                 el.innerHTML = `<div class="dl">${escapeHtml(g.caption||'')}</div>`;
                 el.onclick = () => openGalleryModal(g.id);
                 if (em) {
@@ -2626,7 +2773,7 @@
                 dome.appendChild(el);
             });
 
-            // Building
+            // ── Building ──
             document.getElementById('building-list').innerHTML = '';
             (d.building || []).forEach(b => {
                 const card = document.createElement('div');
@@ -2648,7 +2795,7 @@
                 document.getElementById('building-list').appendChild(card);
             });
 
-            // Stack
+            // ── Stack ──
             const stackArray = (d.settings.stack || '').split(',').map(s => s.trim()).filter(Boolean);
             const stackContainer = document.getElementById('stack-cloud');
             stackContainer.innerHTML = '';
@@ -2666,7 +2813,7 @@
                 stackContainer.appendChild(chip);
             });
 
-            // Timeline
+            // ── Timeline ──
             const tlContainer = document.getElementById('tl-list');
             tlContainer.innerHTML = '';
             (d.timeline || []).forEach(t => {
@@ -2684,21 +2831,114 @@
                 tlContainer.appendChild(item);
             });
 
-            // Social links
+            // ── Social links (only GitHub & Instagram) ──
             const s = d.settings;
-            // Social links - only GitHub and Instagram
             document.getElementById('social-row').innerHTML = `
                 <a href="${s.github || '#'}" target="_blank">GitHub</a>
                 <a href="${s.instagram || '#'}" target="_blank">Instagram</a>`;
 
             document.getElementById('footer-year').textContent = new Date().getFullYear();
-            setupHorizontalScroll();
             applyDome();
             initRevealObserver();
         }
 
         /* =========================================================
-           MODALS
+           HERO 3D (Three.js)
+        ========================================================= */
+    
+
+        function initHero3D() {
+            const container = document.getElementById('hero-3d-container');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.z = 15;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const ambient = new THREE.AmbientLight(0x404060);
+            scene.add(ambient);
+            const light = new THREE.DirectionalLight(0xffffff, 1.5);
+            light.position.set(5, 5, 5);
+            scene.add(light);
+            const backLight = new THREE.DirectionalLight(0x6e8bff, 0.5);
+            backLight.position.set(-5, -5, -5);
+            scene.add(backLight);
+
+            const shapes = [];
+            const colors = [0x6e8bff, 0xa26bff, 0x5be08a, 0xff6b6b, 0xffb347];
+            const geometries = [
+                new THREE.IcosahedronGeometry(0.3, 0),
+                new THREE.OctahedronGeometry(0.3),
+                new THREE.TorusGeometry(0.25, 0.1, 8, 16),
+                new THREE.BoxGeometry(0.4, 0.4, 0.4)
+            ];
+
+            for (let i = 0; i < 30; i++) {
+                const geo = geometries[Math.floor(Math.random() * geometries.length)];
+                const mat = new THREE.MeshPhongMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true,
+                    opacity: 0.4 + Math.random() * 0.5,
+                    wireframe: Math.random() > 0.6,
+                    roughness: 0.3,
+                    metalness: 0.1
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                const x = (Math.random() - 0.5) * 18;
+                const y = (Math.random() - 0.5) * 12;
+                const z = (Math.random() - 0.5) * 10 - 5;
+                mesh.position.set(x, y, z);
+                mesh.userData = {
+                    rotSpeed: 0.005 + Math.random() * 0.02,
+                    floatSpeed: 0.3 + Math.random() * 0.5,
+                    floatAmp: 0.2 + Math.random() * 0.3,
+                    startY: y
+                };
+                scene.add(mesh);
+                shapes.push(mesh);
+            }
+
+            let mouseX = 0,
+                mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+                mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = Date.now() * 0.001;
+                shapes.forEach((mesh, i) => {
+                    mesh.rotation.x += mesh.userData.rotSpeed * 0.5;
+                    mesh.rotation.y += mesh.userData.rotSpeed;
+                    const floatOffset = Math.sin(time * mesh.userData.floatSpeed + i) * mesh.userData.floatAmp;
+                    mesh.position.y = mesh.userData.startY + floatOffset;
+                });
+                camera.position.x += (mouseX * 2 - camera.position.x) * 0.03;
+                camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.03;
+                camera.lookAt(0, 0, 0);
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            function resize() {
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            }
+            window.addEventListener('resize', resize);
+        }
+
+        /* =========================================================
+           MODALS, THEME, CONTACT, TYPEWRITER, CLOCK, SCROLL, etc.
         ========================================================= */
         function openProjectModal(id) {
             const p = (siteData.projects || []).find(x => x.id === id);
@@ -2732,9 +2972,6 @@
         function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
         document.getElementById('modal-bg').addEventListener('click', e => { if (e.target.id === 'modal-bg') closeModal(); });
 
-        /* =========================================================
-           THEME TOGGLE
-        ========================================================= */
         function toggleTheme() {
             document.body.classList.toggle('light');
             document.getElementById('theme-toggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
@@ -2746,9 +2983,6 @@
             document.getElementById('theme-toggle').textContent = '☀️';
         }
 
-        /* =========================================================
-           CONTACT
-        ========================================================= */
         document.getElementById('cf-submit').addEventListener('click', async () => {
             const n = document.getElementById('cf-name').value.trim();
             const e = document.getElementById('cf-email').value.trim();
@@ -2764,9 +2998,6 @@
 
         function copyEmail() { navigator.clipboard.writeText('chandariaparshv@gmail.com').then(() => showToast('Email copied')); }
 
-        /* =========================================================
-           TYPEWRITER, CLOCK, SCROLL
-        ========================================================= */
         const phrases = ['Turning ideas into code.', 'Building the future, one project at a time.',
             'AI, robotics, and the web.', 'Always learning, always making.'
         ];
@@ -2800,9 +3031,6 @@
         }
         addEventListener('scroll', updateScrollProgress);
 
-        /* =========================================================
-           REVEAL ON SCROLL
-        ========================================================= */
         let revealObserver = null;
 
         function initRevealObserver() {
@@ -2826,9 +3054,6 @@
             });
         }
 
-        /* =========================================================
-           DOME
-        ========================================================= */
         let domeAngle = 0,
             domeDragging = false,
             sx = 0,
@@ -3098,9 +3323,7 @@
         async function saveGalleryItem() {
             const id = document.getElementById('gf-id').value || 'g' + Date.now();
             const rawImg = document.getElementById('gf-img').value.trim();
-            // If the image field is empty, use the default. If it's a data URL that's too long, warn.
             let imgUrl = rawImg || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800';
-            // If it's a data URL longer than 1MB, warn but still save.
             if (rawImg.startsWith('data:') && rawImg.length > 1024 * 1024) {
                 showToast('Large image — may load slowly');
             }
@@ -3484,7 +3707,7 @@
                 dot.style.left = mx + 'px';
                 dot.style.top = my + 'px';
                 spawnTrail(mx, my);
-                const hoverable = e.target.closest('a, button, .pcard, .dome-item, .dome-btn, .stack-chip, .add-tile, .add-inline-btn');
+                const hoverable = e.target.closest('a, button, .pcard-3d, .dome-item, .dome-btn, .stack-chip, .add-tile, .add-inline-btn');
                 if (hoverable) {
                     document.body.classList.add('cursor-hover');
                     ring.querySelector('span').textContent = hoverable.getAttribute('data-cursor') || 'Open';
@@ -3534,56 +3757,6 @@
         }
 
         /* =========================================================
-           HORIZONTAL SCROLL
-        ========================================================= */
-        let __workScrollHandler = null;
-        let __workResizeHandler = null;
-
-        function setupHorizontalScroll() {
-            const container = document.getElementById('work-scroll-container');
-            const sticky = document.querySelector('.work-track-sticky');
-            const track = document.getElementById('work-track');
-            if (!container || !sticky || !track) return;
-            const featured = (siteData.projects || []).filter(p => p.featured);
-            if (__workScrollHandler) { window.removeEventListener('scroll', __workScrollHandler);
-                __workScrollHandler = null; }
-            if (__workResizeHandler) { window.removeEventListener('resize', __workResizeHandler);
-                __workResizeHandler = null; }
-            if (featured.length === 0) { container.style.height = '100vh';
-                track.style.transform = 'translateX(0)'; return; }
-            requestAnimationFrame(() => {
-                const trackWidth = track.scrollWidth;
-                const viewportWidth = sticky.clientWidth;
-                const scrollableWidth = Math.max(0, trackWidth - viewportWidth);
-                const extraHeightVh = scrollableWidth > 0 ? (scrollableWidth / window.innerHeight) * 100 : 0;
-                container.style.height = `calc(100vh + ${extraHeightVh}vh)`;
-
-                function updateWorkScroll() {
-                    const rect = container.getBoundingClientRect();
-                    const containerTop = rect.top;
-                    const containerHeight = rect.height;
-                    const viewportHeight = window.innerHeight;
-                    const scrollRange = containerHeight - viewportHeight;
-                    if (scrollRange <= 0) { track.style.transform = 'translateX(0)'; return; }
-                    const progress = Math.min(1, Math.max(0, -containerTop / scrollRange));
-                    track.style.transform = `translateX(-${progress * scrollableWidth}px)`;
-                }
-                let ticking = false;
-                __workScrollHandler = () => {
-                    if (!ticking) {
-                        window.requestAnimationFrame(() => { updateWorkScroll();
-                            ticking = false; });
-                        ticking = true;
-                    }
-                };
-                __workResizeHandler = () => { setTimeout(setupHorizontalScroll, 200); };
-                window.addEventListener('scroll', __workScrollHandler);
-                window.addEventListener('resize', __workResizeHandler);
-                updateWorkScroll();
-            });
-        }
-
-        /* =========================================================
            INIT
         ========================================================= */
         async function initSite() {
@@ -3593,6 +3766,7 @@
             updateClock();
             setInterval(updateClock, 1000);
             updateScrollProgress();
+            initHero3D();
         }
 
         let lp = 0;
