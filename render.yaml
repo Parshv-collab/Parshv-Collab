@@ -1,7 +1,0 @@
-# render.yaml
-services:
-  - type: web
-    name: my-portfolio
-    runtime: static
-    buildCommand: ""
-    staticPublishPath: .
