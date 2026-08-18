@@ -42,3 +42,4 @@
 - [x] Use dark mode as the default theme while preserving the visitor-controlled theme toggle.
 - [x] Configure the existing cached GitHub activity widget for the `Parshv-collab` public profile.
 - [x] Diagnose and repair the reported public site loading failure, then verify public and admin routes load reliably.
+- [x] Diagnose and repair the Render-only `createContext` client bundle runtime error, then validate a production-style browser load.

@@ -16,18 +16,6 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-          if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils")) return "motion";
-          if (id.includes("@radix") || id.includes("embla") || id.includes("lucide") || id.includes("sonner")) return "ui";
-          if (id.includes("@trpc") || id.includes("superjson") || id.includes("zod")) return "rpc";
-          if (id.includes("/node_modules/react/") || id.includes("/node_modules/react-dom/") || id.includes("use-sync-external-store") || id.includes("wouter") || id.includes("@tanstack")) return "react-vendor";
-          return "vendor";
-        },
-      },
-    },
   },
   server: { host: true },
 });
