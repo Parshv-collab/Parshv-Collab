@@ -47,3 +47,6 @@
 - [x] Add direct Live and GitHub actions to every project card and retain the existing visual project preview.
 - [x] Normalize legacy starter project copy so existing saved content no longer displays case-study wording.
 - [x] Remove stale retired project-detail URLs and metadata from SEO generation and verify the public sitemap.
+- [x] Deliver valid contact-form submissions to the owner’s email while retaining the database inbox as a delivery backup.
+- [x] Add an optional visitor-controlled WhatsApp handoff with the completed inquiry prefilled after form submission.
+- [x] Document the Render environment variables and sender-domain setup needed for reliable owner email delivery.

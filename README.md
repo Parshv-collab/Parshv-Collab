@@ -14,6 +14,8 @@ Create a free MongoDB Atlas cluster, create a database user, and copy the **Driv
 
 The owner updates all public content through `/admin`. Site edits are password-protected on the client and independently verified server-side for every content, inbox, and media mutation. Uploaded project, profile, résumé, and hero assets use MongoDB GridFS and are served from `/api/media/:id`. Content, case studies, writing, availability, recommendations, contact inbox records, and the five-minute GitHub response cache all live in MongoDB, so every visitor receives the same saved portfolio data after Render deployment.
 
+Contact submissions are saved to the protected inbox and also delivered through Resend. In Render, configure `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL`, and `CONTACT_FROM_EMAIL`. The sender value must be an address or display-name/address pair that has been verified in your Resend account. A visitor may additionally choose the post-submit WhatsApp handoff, which opens WhatsApp with their completed inquiry prefilled; automated WhatsApp delivery would require separate Meta WhatsApp Business or Twilio credentials.
+
 For a direct environment-specific Atlas check, run `RUN_MONGODB_INTEGRATION=true pnpm vitest run server/mongo.integration.test.ts` from a machine or deployment runtime that has network access to your Atlas cluster. The Content Studio also displays the current server-side MongoDB connection state and can refresh that status on demand.
 
 The measured local production audit, bundle split, known deployment caveat, and final-URL rerun guidance are recorded in [`PERFORMANCE_AUDIT.md`](./PERFORMANCE_AUDIT.md).

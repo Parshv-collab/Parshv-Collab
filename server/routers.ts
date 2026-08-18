@@ -7,6 +7,7 @@ import { getInquiries, getPortfolioContent, markInquiryRead, saveInquiry, savePo
 import { storagePut } from "./storage";
 import { getGithubActivity } from "./github";
 import { getMongoDb } from "./mongo";
+import { sendContactEmail } from "./contactEmail";
 
 const urlOrEmpty = z.union([z.string().url(), z.literal("")]);
 const skillSchema = z.object({ id: z.string().min(1).max(100), name: z.string().min(1).max(100), level: z.enum(["Working knowledge", "Strong", "Expert"]) });
@@ -63,7 +64,9 @@ export const appRouter = router({
       .input(z.object({ name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(320), message: z.string().trim().min(20).max(4000) }))
       .mutation(async ({ input }) => {
         await saveInquiry(input);
-        return { success: true } as const;
+        const email = await sendContactEmail(input);
+        const whatsappText = encodeURIComponent(`New portfolio inquiry\n\nName: ${input.name}\nEmail: ${input.email}\n\nMessage:\n${input.message}`);
+        return { success: true, emailDelivered: email.delivered, whatsappUrl: `https://wa.me/919082007724?text=${whatsappText}` } as const;
       }),
     uploadMedia: passwordAdminProcedure
       .input(z.object({ filename: z.string().trim().regex(/^[a-zA-Z0-9._-]+$/).max(180), contentType: z.string().regex(/^(image\/(png|jpeg|webp|avif)|application\/pdf)$/), dataBase64: z.string().min(20).max(7_000_000) }))
