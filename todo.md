@@ -43,3 +43,7 @@
 - [x] Configure the existing cached GitHub activity widget for the `Parshv-collab` public profile.
 - [x] Diagnose and repair the reported public site loading failure, then verify public and admin routes load reliably.
 - [x] Diagnose and repair the Render-only `createContext` client bundle runtime error, then validate a production-style browser load.
+- [x] Remove case-study terminology and routes while preserving the selected-work section placement.
+- [x] Add direct Live and GitHub actions to every project card and retain the existing visual project preview.
+- [x] Normalize legacy starter project copy so existing saved content no longer displays case-study wording.
+- [x] Remove stale retired project-detail URLs and metadata from SEO generation and verify the public sitemap.

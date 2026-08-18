@@ -8,6 +8,16 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
   const doc = await db.collection<{ key: string; value: PortfolioContent }>("site_content").findOne({ key: CONTENT_KEY });
   if (!doc?.value) return defaultPortfolioContent;
   const saved = doc.value;
+  const legacyBio = "This portfolio is ready for your story. Use the owner dashboard to shape the narrative, introduce your experience, and turn each selected project into a considered case study.";
+  const projects = (saved.projects ?? defaultPortfolioContent.projects).map(project => {
+    const normalized = { ...defaultPortfolioContent.projects[0], ...project, slug: project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") };
+    return {
+      ...normalized,
+      title: normalized.title === "Your first case study" ? "Featured project" : normalized.title,
+      summary: normalized.summary === "A deliberately empty canvas for a project that deserves a considered story." ? "A deliberately open canvas for a project worth showing clearly." : normalized.summary,
+      description: normalized.description === "Replace this placeholder in the owner dashboard with a genuine project, its role, its technical decisions, and the visual evidence that makes the work memorable." ? "Replace this placeholder in the owner dashboard with a genuine project, its role, relevant technology, useful links, and visual evidence of the work." : normalized.description,
+    };
+  });
   return {
     ...defaultPortfolioContent,
     ...saved,
@@ -16,9 +26,10 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
       ...saved.site,
       githubUrl: saved.site.githubUrl || defaultPortfolioContent.site.githubUrl,
       githubUsername: saved.site.githubUsername || defaultPortfolioContent.site.githubUsername,
+      bio: saved.site.bio === legacyBio ? defaultPortfolioContent.site.bio : saved.site.bio,
     },
     skills: saved.skills ?? defaultPortfolioContent.skills,
-    projects: (saved.projects ?? defaultPortfolioContent.projects).map(project => ({ ...defaultPortfolioContent.projects[0], ...project, slug: project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") })),
+    projects,
     services: saved.services ?? defaultPortfolioContent.services,
     testimonials: (saved.testimonials ?? []).map(item => ({ ...item, avatarUrl: item.avatarUrl ?? "" })),
     posts: saved.posts ?? [],

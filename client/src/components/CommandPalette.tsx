@@ -1,20 +1,21 @@
 import type { PortfolioContent } from "@shared/portfolio";
 import { Command, Copy, FileText, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "wouter";
 
 type PaletteItem = { label: string; hint: string; action: () => void };
 
 export function CommandPalette({ content }: { content: PortfolioContent }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [, setLocation] = useLocation();
   const items = useMemo<PaletteItem[]>(() => [
     ...[["About", "about"], ["Work", "work"], ["Expertise", "expertise"], ["Contact", "contact"]].map(([label, id]) => ({ label: `Jump to ${label}`, hint: "Section", action: () => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }) })),
-    ...content.projects.map(project => ({ label: project.title, hint: "Case study", action: () => setLocation(`/work/${project.slug}`) })),
+    ...content.projects.flatMap(project => [
+      ...(project.liveUrl ? [{ label: `Open ${project.title}`, hint: "Live project", action: () => window.open(project.liveUrl, "_blank", "noopener,noreferrer") }] : []),
+      ...(project.codeUrl ? [{ label: `${project.title} source`, hint: "GitHub", action: () => window.open(project.codeUrl, "_blank", "noopener,noreferrer") }] : []),
+    ]),
     { label: "Copy email", hint: content.site.email, action: () => navigator.clipboard?.writeText(content.site.email) },
     ...(content.site.resumeUrl ? [{ label: "Open résumé", hint: "PDF", action: () => window.open(content.site.resumeUrl, "_blank", "noopener,noreferrer") }] : []),
-  ], [content, setLocation]);
+  ], [content]);
   const visible = items.filter(item => `${item.label} ${item.hint}`.toLowerCase().includes(query.toLowerCase()));
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

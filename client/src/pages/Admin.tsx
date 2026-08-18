@@ -175,7 +175,7 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
             </section>
 
             <StructuredEditor title="02 / Skill groups" value={skillsText} onChange={setSkillsText} onApply={applyJsonEditors} hint="Edit category titles, skills, and levels. Keep the existing object structure." />
-            <StructuredEditor title="03 / Selected work" value={projectsText} onChange={setProjectsText} onApply={applyJsonEditors} hint="Add your case studies, category, description, role, links, tech, and an array of uploaded image URLs." />
+            <StructuredEditor title="03 / Selected projects" value={projectsText} onChange={setProjectsText} onApply={applyJsonEditors} hint="Add projects with a category, concise description, role, live URL, GitHub URL, technology list, and uploaded image URLs." />
             <StructuredEditor title="04 / Expertise" value={servicesText} onChange={setServicesText} onApply={applyJsonEditors} hint="Shape the three service cards or add the distinct practices you offer." />
             <StructuredEditor title="05 / Verified client quotes" value={testimonialsText} onChange={setTestimonialsText} onApply={applyJsonEditors} hint="Only add testimonials that you have received permission to publish." />
             <StructuredEditor title="06 / Writing posts" value={postsText} onChange={setPostsText} onApply={applyJsonEditors} hint="Edit post title, slug, excerpt, body, tags, and ISO publishedAt date. Reading time is calculated automatically." />

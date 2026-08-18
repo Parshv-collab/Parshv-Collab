@@ -8,7 +8,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
 const Admin = lazy(() => import("./pages/Admin"));
-const CaseStudy = lazy(() => import("./pages/CaseStudy"));
 const WritingIndex = lazy(() => import("./pages/Writing").then(module => ({ default: module.WritingIndex })));
 const WritingArticle = lazy(() => import("./pages/Writing").then(module => ({ default: module.WritingArticle })));
 
@@ -16,7 +15,6 @@ function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/work/:slug"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><CaseStudy /></Suspense>}</Route>
       <Route path={"/writing/:slug"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><WritingArticle /></Suspense>}</Route>
       <Route path={"/writing"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><WritingIndex /></Suspense>}</Route>
       <Route path={"/"} component={Home} />
