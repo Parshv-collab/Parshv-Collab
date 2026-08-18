@@ -1,6 +1,6 @@
-import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import { getAdminSessionToken, verifyAdminSession } from "../adminPassword";
 import type { TrpcContext } from "./context";
 
 const t = initTRPC.context<TrpcContext>().create({
@@ -10,36 +10,12 @@ const t = initTRPC.context<TrpcContext>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-const requireUser = t.middleware(async opts => {
-  const { ctx, next } = opts;
-
-  if (!ctx.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
-  }
-
-  return next({
-    ctx: {
-      ...ctx,
-      user: ctx.user,
-    },
-  });
-});
-
-export const protectedProcedure = t.procedure.use(requireUser);
-
-export const adminProcedure = t.procedure.use(
+export const passwordAdminProcedure = t.procedure.use(
   t.middleware(async opts => {
-    const { ctx, next } = opts;
-
-    if (!ctx.user || ctx.user.role !== 'admin') {
-      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+    const session = getAdminSessionToken(opts.ctx.req.headers);
+    if (!(await verifyAdminSession(session))) {
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "Editing mode has expired. Sign in again to continue." });
     }
-
-    return next({
-      ctx: {
-        ...ctx,
-        user: ctx.user,
-      },
-    });
+    return opts.next({ ctx: opts.ctx });
   }),
 );

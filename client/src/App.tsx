@@ -2,20 +2,25 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
+import { lazy, Suspense } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import Admin from "./pages/Admin";
-import Writing from "./pages/Writing";
-import RobotCompanion from "./components/RobotCompanion";
+
+const Admin = lazy(() => import("./pages/Admin"));
+const CaseStudy = lazy(() => import("./pages/CaseStudy"));
+const WritingIndex = lazy(() => import("./pages/Writing").then(module => ({ default: module.WritingIndex })));
+const WritingArticle = lazy(() => import("./pages/Writing").then(module => ({ default: module.WritingArticle })));
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
+      <Route path={"/work/:slug"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><CaseStudy /></Suspense>}</Route>
+      <Route path={"/writing/:slug"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><WritingArticle /></Suspense>}</Route>
+      <Route path={"/writing"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><WritingIndex /></Suspense>}</Route>
       <Route path={"/"} component={Home} />
-      <Route path={"/admin"} component={Admin} />
-      <Route path={"/writing/:id"} component={Writing} />
+      <Route path={"/admin"}>{() => <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}><Admin /></Suspense>}</Route>
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -33,11 +38,10 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider
         defaultTheme="dark"
-        // switchable
+        switchable
       >
         <TooltipProvider>
-          <Toaster theme="dark" />
-          <RobotCompanion />
+          <Toaster />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
