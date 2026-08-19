@@ -13,6 +13,7 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
     const fallback = defaultPortfolioContent.projects[0];
     const normalized = {
       id: project.id || fallback.id,
+      visible: project.visible !== false,
       title: project.title || fallback.title,
       category: project.category || fallback.category,
       summary: project.summary || fallback.summary,

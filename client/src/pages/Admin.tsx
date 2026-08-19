@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { defaultPortfolioContent, type PortfolioContent } from "@shared/portfolio";
 import { ArrowUpRight, Check, FileUp, LockKeyhole, LogOut, Save, UploadCloud } from "lucide-react";
@@ -70,7 +71,7 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
       return { previous };
     },
     onSuccess: () => {
-      toast.success("Portfolio content saved.");
+      toast.success("Project and portfolio changes are now live.");
     },
     onError: (error, _next, context) => {
       if (context?.previous) utils.portfolio.content.setData(undefined, context.previous);
@@ -103,6 +104,16 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
 
   const setSite = (key: keyof PortfolioContent["site"], value: string) => {
     setDraft(current => ({ ...current, site: { ...current.site, [key]: value } }));
+  };
+
+  const setProjectVisibility = (id: string, visible: boolean) => {
+    setDraft(current => {
+      const projects = current.projects.map(project => project.id === id ? { ...project, visible } : project);
+      setProjectsText(JSON.stringify(projects, null, 2));
+      const project = projects.find(item => item.id === id);
+      toast.success(`${project?.title ?? "Project"} will be ${visible ? "visible" : "hidden"} after you save changes.`);
+      return { ...current, projects };
+    });
   };
 
   const applyJsonEditors = () => {
@@ -176,6 +187,7 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
 
             <StructuredEditor title="02 / Skill groups" value={skillsText} onChange={setSkillsText} onApply={applyJsonEditors} hint="Edit category titles, skills, and levels. Keep the existing object structure." />
             <StructuredEditor title="03 / Selected projects" value={projectsText} onChange={setProjectsText} onApply={applyJsonEditors} hint="Add direct project cards with a title, category, concise summary, technology list, Live URL, GitHub URL, and uploaded image URLs." />
+            <section className="admin-card"><div className="admin-card-title"><span>PROJECTS</span><h2>Publishing and image preview</h2></div><p className="mb-5 text-sm leading-6 text-white/50">Toggle projects on or off without deleting them. The visuals below use your current draft and remain private until you save changes.</p><div className="space-y-4">{draft.projects.map(project => <article key={project.id} className="overflow-hidden rounded-xl border border-white/10 bg-white/[.025]"><div className="grid gap-4 p-4 sm:grid-cols-[10rem_1fr]"><div className="aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-black/30">{project.images[0] ? <img src={project.images[0]} alt={`${project.title} draft preview`} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center px-3 text-center font-mono text-[10px] uppercase tracking-[.13em] text-white/35">No project visual yet</div>}</div><div className="flex min-w-0 flex-col justify-between gap-4"><div><p className="truncate text-base font-bold">{project.title}</p><p className="mt-1 text-sm text-white/50">{project.category} · {project.images.length} visual{project.images.length === 1 ? "" : "s"}</p></div><div className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2"><span className="text-sm text-white/70">Visible on live site</span><Switch checked={project.visible} onCheckedChange={visible => setProjectVisibility(project.id, visible)} aria-label={`Set ${project.title} visibility`} className="data-[state=checked]:bg-[#b8ff5c] data-[state=unchecked]:bg-white/20" /></div></div></div></article>)}</div></section>
             <StructuredEditor title="04 / Expertise" value={servicesText} onChange={setServicesText} onApply={applyJsonEditors} hint="Shape the three service cards or add the distinct practices you offer." />
             <StructuredEditor title="05 / Verified client quotes" value={testimonialsText} onChange={setTestimonialsText} onApply={applyJsonEditors} hint="Only add testimonials that you have received permission to publish." />
             <StructuredEditor title="06 / Writing posts" value={postsText} onChange={setPostsText} onApply={applyJsonEditors} hint="Edit post title, slug, excerpt, body, tags, and ISO publishedAt date. Reading time is calculated automatically." />

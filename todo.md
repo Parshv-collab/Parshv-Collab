@@ -52,3 +52,18 @@
 - [x] Document the Render environment variables and sender-domain setup needed for reliable owner email delivery.
 - [x] Remove remaining case-study terminology and detail-only project fields from the admin content editor.
 - [x] Update admin project-editing guidance to focus on title, category, summary, visual media, Live URL, and GitHub URL.
+- [x] Add smooth project-card hover motion and accessible tooltips for Live and GitHub actions.
+- [x] Add an admin visibility control so individual projects can be hidden or shown without deletion.
+- [x] Add pre-save preview thumbnails for uploaded project visuals in the admin panel.
+- [x] Create, validate, and package a reusable skill for the premium portfolio build and refinement workflow.
+- [x] Deliver the validated `premium-portfolio-workflow` reusable skill as a user-installable attachment.
+- [x] Add visible technology tags and technology-based filters to public project cards.
+- [x] Add a project-card skeleton loading state while database content is fetched.
+- [x] Add explicit toast feedback when project content is saved or project visibility changes in Content Studio.
+- [x] Add an accessible hover and keyboard-focus reveal that surfaces a concise project summary before a visitor opens its links.
+- [x] Defer production imagery replacement at owner request and retain the current project-card visuals.
+- [x] Add a smoother, reduced-motion-aware summary reveal transition for pointer-capable project cards.
+- [x] Optimize mobile project cards so project summary and context remain immediately accessible without hover.
+- [x] Complete a full mobile-readiness audit and refinement pass for navigation, layout, touch targets, filters, cards, and inquiry submission.
+- [x] Refine and verify the mobile navigation header and drawer for safe-area spacing, larger tap targets, and clear section-link usability.
+- [x] Add an accessible Back to Top control that appears after scrolling and smoothly returns visitors to the top of the portfolio.

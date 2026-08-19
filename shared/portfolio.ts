@@ -12,6 +12,7 @@ export type SkillGroup = {
 
 export type Project = {
   id: string;
+  visible: boolean;
   title: string;
   category: "Design" | "Frontend" | "Full-stack" | "Open source";
   summary: string;
@@ -119,6 +120,7 @@ export const defaultPortfolioContent: PortfolioContent = {
   projects: [
     {
       id: "placeholder-1",
+      visible: true,
       title: "Featured project",
       category: "Full-stack",
       summary: "A deliberately open canvas for a project worth showing clearly.",

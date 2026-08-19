@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultPortfolioContent } from "../shared/portfolio";
 import { createAdminSession } from "./adminPassword";
-import { appRouter } from "./routers";
+import { appRouter, contentSchema } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
 function context(sessionToken?: string): TrpcContext {
@@ -16,5 +16,12 @@ describe("password-protected portfolio routes", () => {
   it("accepts a password-issued session on the server", async () => {
     const sessionToken = await createAdminSession();
     await expect(appRouter.createCaller(context(sessionToken)).admin.status()).resolves.toEqual({ editing: true });
+  });
+
+  it("requires each saved project to declare whether it is visible", () => {
+    expect(contentSchema.parse(defaultPortfolioContent).projects[0]?.visible).toBe(true);
+    const withoutVisibility = structuredClone(defaultPortfolioContent);
+    delete (withoutVisibility.projects[0] as Partial<typeof withoutVisibility.projects[number]>).visible;
+    expect(() => contentSchema.parse(withoutVisibility)).toThrow();
   });
 });
