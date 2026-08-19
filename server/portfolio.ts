@@ -10,12 +10,21 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
   const saved = doc.value;
   const legacyBio = "This portfolio is ready for your story. Use the owner dashboard to shape the narrative, introduce your experience, and turn each selected project into a considered case study.";
   const projects = (saved.projects ?? defaultPortfolioContent.projects).map(project => {
-    const normalized = { ...defaultPortfolioContent.projects[0], ...project, slug: project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") };
+    const fallback = defaultPortfolioContent.projects[0];
+    const normalized = {
+      id: project.id || fallback.id,
+      title: project.title || fallback.title,
+      category: project.category || fallback.category,
+      summary: project.summary || fallback.summary,
+      tech: project.tech?.length ? project.tech : fallback.tech,
+      liveUrl: project.liveUrl || "",
+      codeUrl: project.codeUrl || "",
+      images: project.images ?? [],
+    };
     return {
       ...normalized,
       title: normalized.title === "Your first case study" ? "Featured project" : normalized.title,
       summary: normalized.summary === "A deliberately empty canvas for a project that deserves a considered story." ? "A deliberately open canvas for a project worth showing clearly." : normalized.summary,
-      description: normalized.description === "Replace this placeholder in the owner dashboard with a genuine project, its role, its technical decisions, and the visual evidence that makes the work memorable." ? "Replace this placeholder in the owner dashboard with a genuine project, its role, relevant technology, useful links, and visual evidence of the work." : normalized.description,
     };
   });
   return {

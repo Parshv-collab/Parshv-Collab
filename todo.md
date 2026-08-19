@@ -50,3 +50,5 @@
 - [x] Deliver valid contact-form submissions to the owner’s email while retaining the database inbox as a delivery backup.
 - [x] Add an optional visitor-controlled WhatsApp handoff with the completed inquiry prefilled after form submission.
 - [x] Document the Render environment variables and sender-domain setup needed for reliable owner email delivery.
+- [x] Remove remaining case-study terminology and detail-only project fields from the admin content editor.
+- [x] Update admin project-editing guidance to focus on title, category, summary, visual media, Live URL, and GitHub URL.

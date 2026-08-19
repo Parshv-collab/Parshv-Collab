@@ -12,21 +12,13 @@ export type SkillGroup = {
 
 export type Project = {
   id: string;
-  slug: string;
   title: string;
   category: "Design" | "Frontend" | "Full-stack" | "Open source";
   summary: string;
-  description: string;
-  role: string;
   tech: string[];
   liveUrl: string;
   codeUrl: string;
   images: string[];
-  timeframe: string;
-  problem: string;
-  approach: string;
-  solution: string;
-  outcome: string;
 };
 
 export type Service = {
@@ -127,21 +119,13 @@ export const defaultPortfolioContent: PortfolioContent = {
   projects: [
     {
       id: "placeholder-1",
-      slug: "featured-project",
       title: "Featured project",
       category: "Full-stack",
       summary: "A deliberately open canvas for a project worth showing clearly.",
-      description: "Replace this placeholder in the owner dashboard with a genuine project, its role, relevant technology, useful links, and visual evidence of the work.",
-      role: "Add your role",
       tech: ["Add", "your", "stack"],
       liveUrl: "",
       codeUrl: "",
       images: [],
-      timeframe: "Add timeframe",
-      problem: "Describe the actual problem this work set out to solve.",
-      approach: "Explain the research, technical, and product decisions behind the approach.",
-      solution: "Describe the shipped experience or system clearly and specifically.",
-      outcome: "Add verified outcomes, impact, or what the work made possible.",
     },
   ],
   services: [
