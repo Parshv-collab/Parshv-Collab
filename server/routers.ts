@@ -9,7 +9,21 @@ import { getGithubActivity } from "./github";
 import { getMongoDb } from "./mongo";
 import { sendContactEmail } from "./contactEmail";
 
-const urlOrEmpty = z.union([z.string().url(), z.literal("")]);
+export function normalizeOptionalWebUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed.replace(/^\/\//, "")}`;
+}
+
+const urlOrEmpty = z.string().max(2048).transform(normalizeOptionalWebUrl).refine(value => {
+  if (!value) return true;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}, { message: "Enter a valid http(s) URL or leave this optional field blank." });
 const skillSchema = z.object({ id: z.string().min(1).max(100), name: z.string().min(1).max(100), level: z.enum(["Working knowledge", "Strong", "Expert"]) });
 export const contentSchema = z.object({
   site: z.object({

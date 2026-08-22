@@ -22,6 +22,20 @@ export type Project = {
   images: string[];
 };
 
+export function createDraftProject(id: string): Project {
+  return {
+    id,
+    visible: true,
+    title: "Untitled project",
+    category: "Full-stack",
+    summary: "Describe the problem, the product signal, and the outcome this project demonstrates.",
+    tech: [],
+    liveUrl: "",
+    codeUrl: "",
+    images: [],
+  };
+}
+
 export type Service = {
   id: string;
   eyebrow: string;

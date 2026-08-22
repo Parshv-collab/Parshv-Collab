@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { defaultPortfolioContent, type PortfolioContent } from "@shared/portfolio";
-import { ArrowUpRight, Check, FileUp, LockKeyhole, LogOut, Save, UploadCloud } from "lucide-react";
+import { createDraftProject, defaultPortfolioContent, type PortfolioContent, type Project } from "@shared/portfolio";
+import { ArrowUpRight, Check, FileUp, LockKeyhole, LogOut, Plus, Save, UploadCloud } from "lucide-react";
 import { ChangeEvent, type CSSProperties, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -116,6 +116,26 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
     });
   };
 
+  const updateProject = (id: string, changes: Partial<Project>) => {
+    setDraft(current => {
+      const projects = current.projects.map(project => project.id === id ? { ...project, ...changes } : project);
+      setProjectsText(JSON.stringify(projects, null, 2));
+      return { ...current, projects };
+    });
+  };
+
+  const addProject = () => {
+    const project = createDraftProject(`project-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
+    setDraft(current => {
+      const projects = [...current.projects, project];
+      setProjectsText(JSON.stringify(projects, null, 2));
+      return { ...current, projects };
+    });
+    setProjectTargetId(project.id);
+    setMediaTarget("project");
+    toast.success("New project added. Complete the direct fields, then save changes.");
+  };
+
   const applyJsonEditors = () => {
     try {
       const next = {
@@ -186,8 +206,8 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
             </section>
 
             <StructuredEditor title="02 / Skill groups" value={skillsText} onChange={setSkillsText} onApply={applyJsonEditors} hint="Edit category titles, skills, and levels. Keep the existing object structure." />
-            <StructuredEditor title="03 / Selected projects" value={projectsText} onChange={setProjectsText} onApply={applyJsonEditors} hint="Add direct project cards with a title, category, concise summary, technology list, Live URL, GitHub URL, and uploaded image URLs." />
-            <section className="admin-card"><div className="admin-card-title"><span>PROJECTS</span><h2>Publishing and image preview</h2></div><p className="mb-5 text-sm leading-6 text-white/50">Toggle projects on or off without deleting them. The visuals below use your current draft and remain private until you save changes.</p><div className="space-y-4">{draft.projects.map(project => <article key={project.id} className="overflow-hidden rounded-xl border border-white/10 bg-white/[.025]"><div className="grid gap-4 p-4 sm:grid-cols-[10rem_1fr]"><div className="aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-black/30">{project.images[0] ? <img src={project.images[0]} alt={`${project.title} draft preview`} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center px-3 text-center font-mono text-[10px] uppercase tracking-[.13em] text-white/35">No project visual yet</div>}</div><div className="flex min-w-0 flex-col justify-between gap-4"><div><p className="truncate text-base font-bold">{project.title}</p><p className="mt-1 text-sm text-white/50">{project.category} · {project.images.length} visual{project.images.length === 1 ? "" : "s"}</p></div><div className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2"><span className="text-sm text-white/70">Visible on live site</span><Switch checked={project.visible} onCheckedChange={visible => setProjectVisibility(project.id, visible)} aria-label={`Set ${project.title} visibility`} className="data-[state=checked]:bg-[#b8ff5c] data-[state=unchecked]:bg-white/20" /></div></div></div></article>)}</div></section>
+            <section className="admin-card"><div className="admin-card-title flex-wrap justify-between gap-3"><div className="flex items-center gap-2"><span>PROJECTS</span><h2>Project cards</h2></div><Button type="button" onClick={addProject} className="bg-[#b8ff5c] text-black hover:bg-[#d0ff87]"><Plus className="mr-2 h-4 w-4" />Add project</Button></div><p className="mb-5 text-sm leading-6 text-white/50">Create and edit every public card here. Live and GitHub links are optional—paste a complete URL or a domain such as <span className="font-mono text-white/70">github.com/your-repo</span>; blank fields are accepted.</p><div className="space-y-4">{draft.projects.map(project => <ProjectEditorCard key={project.id} project={project} onChange={changes => updateProject(project.id, changes)} onVisibilityChange={visible => setProjectVisibility(project.id, visible)} />)}</div></section>
+            <StructuredEditor title="03 / Advanced project JSON" value={projectsText} onChange={setProjectsText} onApply={applyJsonEditors} hint="Use this only for bulk changes. Optional Live and GitHub URLs may be blank or may omit https://; Content Studio will normalize valid web addresses when saved." />
             <StructuredEditor title="04 / Expertise" value={servicesText} onChange={setServicesText} onApply={applyJsonEditors} hint="Shape the three service cards or add the distinct practices you offer." />
             <StructuredEditor title="05 / Verified client quotes" value={testimonialsText} onChange={setTestimonialsText} onApply={applyJsonEditors} hint="Only add testimonials that you have received permission to publish." />
             <StructuredEditor title="06 / Writing posts" value={postsText} onChange={setPostsText} onApply={applyJsonEditors} hint="Edit post title, slug, excerpt, body, tags, and ISO publishedAt date. Reading time is calculated automatically." />
@@ -227,6 +247,10 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
       </div>
     </main>
   );
+}
+
+function ProjectEditorCard({ project, onChange, onVisibilityChange }: { project: Project; onChange: (changes: Partial<Project>) => void; onVisibilityChange: (visible: boolean) => void }) {
+  return <article className="overflow-hidden rounded-xl border border-white/10 bg-white/[.025]"><div className="grid gap-4 p-4 lg:grid-cols-[11rem_1fr]"><div className="aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-black/30">{project.images[0] ? <img src={project.images[0]} alt={`${project.title} draft preview`} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center px-3 text-center font-mono text-[10px] uppercase tracking-[.13em] text-white/35">Select this project in Media to upload a visual</div>}</div><div className="grid gap-4"><div className="grid gap-4 sm:grid-cols-[1fr_12rem]"><label className="form-label">Project title<Input value={project.title} onChange={event => onChange({ title: event.target.value })} className="form-input h-11" /></label><label className="form-label">Category<select value={project.category} onChange={event => onChange({ category: event.target.value as Project["category"] })} className="form-input h-11 rounded-md px-3"><option>Design</option><option>Frontend</option><option>Full-stack</option><option>Open source</option></select></label></div><label className="form-label">Concise project summary<Textarea value={project.summary} onChange={event => onChange({ summary: event.target.value })} className="form-input min-h-24" /></label><label className="form-label">Technologies <span className="normal-case tracking-normal text-white/40">(comma-separated)</span><Input value={project.tech.join(", ")} onChange={event => onChange({ tech: event.target.value.split(",").map(item => item.trim()).filter(Boolean) })} placeholder="React, TypeScript, MongoDB" className="form-input h-11" /></label><div className="grid gap-4 sm:grid-cols-2"><label className="form-label">Live URL <span className="normal-case tracking-normal text-white/40">(optional)</span><Input value={project.liveUrl} onChange={event => onChange({ liveUrl: event.target.value })} inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="your-project.com" className="form-input h-11" /></label><label className="form-label">GitHub URL <span className="normal-case tracking-normal text-white/40">(optional)</span><Input value={project.codeUrl} onChange={event => onChange({ codeUrl: event.target.value })} inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="github.com/your/repository" className="form-input h-11" /></label></div><div className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2"><span className="text-sm text-white/70">Visible on live site</span><Switch checked={project.visible} onCheckedChange={onVisibilityChange} aria-label={`Set ${project.title} visibility`} className="data-[state=checked]:bg-[#b8ff5c] data-[state=unchecked]:bg-white/20" /></div></div></div></article>;
 }
 
 function StructuredEditor({ title, value, onChange, onApply, hint }: { title: string; value: string; onChange: (value: string) => void; onApply: () => void; hint: string }) {

@@ -67,3 +67,5 @@
 - [x] Complete a full mobile-readiness audit and refinement pass for navigation, layout, touch targets, filters, cards, and inquiry submission.
 - [x] Refine and verify the mobile navigation header and drawer for safe-area spacing, larger tap targets, and clear section-link usability.
 - [x] Add an accessible Back to Top control that appears after scrolling and smoothly returns visitors to the top of the portfolio.
+- [x] Fix optional Live and GitHub URL validation so blank or valid project URLs do not block project saves.
+- [x] Add a clear Content Studio control to create a new project with editable starter fields.

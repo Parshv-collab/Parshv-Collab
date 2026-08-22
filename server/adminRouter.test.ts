@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { defaultPortfolioContent } from "../shared/portfolio";
+import { createDraftProject, defaultPortfolioContent } from "../shared/portfolio";
 import { createAdminSession } from "./adminPassword";
-import { appRouter, contentSchema } from "./routers";
+import { appRouter, contentSchema, normalizeOptionalWebUrl } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
 function context(sessionToken?: string): TrpcContext {
@@ -23,5 +23,18 @@ describe("password-protected portfolio routes", () => {
     const withoutVisibility = structuredClone(defaultPortfolioContent);
     delete (withoutVisibility.projects[0] as Partial<typeof withoutVisibility.projects[number]>).visible;
     expect(() => contentSchema.parse(withoutVisibility)).toThrow();
+  });
+
+  it("accepts blank URLs and normalizes a repository address without a protocol", () => {
+    const content = structuredClone(defaultPortfolioContent);
+    const project = createDraftProject("new-project");
+    project.liveUrl = "   ";
+    project.codeUrl = "github.com/Parshv-collab/signal-atelier";
+    content.projects = [project];
+
+    const parsed = contentSchema.parse(content);
+    expect(parsed.projects[0]?.liveUrl).toBe("");
+    expect(parsed.projects[0]?.codeUrl).toBe("https://github.com/Parshv-collab/signal-atelier");
+    expect(normalizeOptionalWebUrl(" //example.com/project ")).toBe("https://example.com/project");
   });
 });
