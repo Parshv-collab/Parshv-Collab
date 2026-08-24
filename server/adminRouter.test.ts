@@ -30,11 +30,14 @@ describe("password-protected portfolio routes", () => {
     const project = createDraftProject("new-project");
     project.liveUrl = "   ";
     project.codeUrl = "github.com/Parshv-collab/signal-atelier";
+    project.images = ["/api/media/6a89116f45be2a99ff20bfd0"];
     content.projects = [project];
 
     const parsed = contentSchema.parse(content);
     expect(parsed.projects[0]?.liveUrl).toBe("");
     expect(parsed.projects[0]?.codeUrl).toBe("https://github.com/Parshv-collab/signal-atelier");
+    expect(parsed.projects[0]?.images).toEqual(["/api/media/6a89116f45be2a99ff20bfd0"]);
     expect(normalizeOptionalWebUrl(" //example.com/project ")).toBe("https://example.com/project");
+    expect(normalizeOptionalWebUrl("/api/media/6a89116f45be2a99ff20bfd0")).toBe("/api/media/6a89116f45be2a99ff20bfd0");
   });
 });

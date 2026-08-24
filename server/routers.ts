@@ -12,11 +12,14 @@ import { sendContactEmail } from "./contactEmail";
 export function normalizeOptionalWebUrl(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return "";
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
+  if (trimmed.startsWith("/")) return trimmed;
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed.replace(/^\/\//, "")}`;
 }
 
 const urlOrEmpty = z.string().max(2048).transform(normalizeOptionalWebUrl).refine(value => {
   if (!value) return true;
+  if (value.startsWith("/")) return true;
   try {
     const parsed = new URL(value);
     return parsed.protocol === "https:" || parsed.protocol === "http:";

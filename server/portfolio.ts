@@ -3,6 +3,12 @@ import { getMongoDb } from "./mongo";
 
 const CONTENT_KEY = "portfolio";
 
+export function normalizeStoredMediaUrl(value: string | undefined) {
+  const trimmed = value?.trim() ?? "";
+  const malformedGridFsPath = trimmed.match(/^https?:\/\/\/+((?:api\/media)\/[0-9a-f]{24})\/?$/i);
+  return malformedGridFsPath ? `/${malformedGridFsPath[1]}` : trimmed;
+}
+
 export async function getPortfolioContent(): Promise<PortfolioContent> {
   const db = await getMongoDb();
   const doc = await db.collection<{ key: string; value: PortfolioContent }>("site_content").findOne({ key: CONTENT_KEY });
@@ -20,7 +26,7 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
       tech: project.tech?.length ? project.tech : fallback.tech,
       liveUrl: project.liveUrl || "",
       codeUrl: project.codeUrl || "",
-      images: project.images ?? [],
+      images: (project.images ?? []).map(normalizeStoredMediaUrl).filter(Boolean),
     };
     return {
       ...normalized,
@@ -34,6 +40,9 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
     site: {
       ...defaultPortfolioContent.site,
       ...saved.site,
+      resumeUrl: normalizeStoredMediaUrl(saved.site.resumeUrl),
+      heroImage: normalizeStoredMediaUrl(saved.site.heroImage),
+      profileImage: normalizeStoredMediaUrl(saved.site.profileImage),
       githubUrl: saved.site.githubUrl || defaultPortfolioContent.site.githubUrl,
       githubUsername: saved.site.githubUsername || defaultPortfolioContent.site.githubUsername,
       bio: saved.site.bio === legacyBio ? defaultPortfolioContent.site.bio : saved.site.bio,

@@ -69,3 +69,4 @@
 - [x] Add an accessible Back to Top control that appears after scrolling and smoothly returns visitors to the top of the portfolio.
 - [x] Fix optional Live and GitHub URL validation so blank or valid project URLs do not block project saves.
 - [x] Add a clear Content Studio control to create a new project with editable starter fields.
+- [x] Diagnose and repair public rendering of images uploaded through Content Studio.
