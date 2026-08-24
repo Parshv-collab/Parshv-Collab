@@ -76,3 +76,5 @@
 - [x] Remove client testimonials at the owner’s request instead of publishing client-quote content.
 - [x] Remove Resend email sending from portfolio enquiries and retain the Content Studio inbox as the sole review channel.
 - [x] Remove testimonials and writing from public routes, navigation, Content Studio, content defaults, validation, and documentation.
+- [x] Add a subtle, accessible loading transition when portfolio navigation moves between remaining sections.
+- [ ] Review mobile navigation in the available preview and prepare the project-card visual assignment workflow for final approved assets.

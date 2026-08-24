@@ -1,6 +1,7 @@
 import type { PortfolioContent } from "@shared/portfolio";
 import { Command, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { requestSectionTransition } from "@/lib/sectionTransition";
 
 type PaletteItem = { label: string; hint: string; action: () => void };
 
@@ -8,7 +9,7 @@ export function CommandPalette({ content }: { content: PortfolioContent }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const items = useMemo<PaletteItem[]>(() => [
-    ...[["About", "about"], ["Work", "work"], ["Expertise", "expertise"], ["Contact", "contact"]].map(([label, id]) => ({ label: `Jump to ${label}`, hint: "Section", action: () => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }) })),
+    ...[["About", "about"], ["Work", "work"], ["Expertise", "expertise"], ["Contact", "contact"]].map(([label, id]) => ({ label: `Jump to ${label}`, hint: "Section", action: () => { requestSectionTransition(id); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); } })),
     ...content.projects.flatMap(project => [
       ...(project.liveUrl ? [{ label: `Open ${project.title}`, hint: "Live project", action: () => window.open(project.liveUrl, "_blank", "noopener,noreferrer") }] : []),
       ...(project.codeUrl ? [{ label: `${project.title} source`, hint: "GitHub", action: () => window.open(project.codeUrl, "_blank", "noopener,noreferrer") }] : []),
