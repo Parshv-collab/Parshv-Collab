@@ -50,8 +50,6 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
     skills: saved.skills ?? defaultPortfolioContent.skills,
     projects,
     services: saved.services ?? defaultPortfolioContent.services,
-    testimonials: (saved.testimonials ?? []).map(item => ({ ...item, avatarUrl: item.avatarUrl ?? "" })),
-    posts: saved.posts ?? [],
   };
 }
 

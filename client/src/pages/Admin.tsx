@@ -45,8 +45,6 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
   const [skillsText, setSkillsText] = useState("");
   const [projectsText, setProjectsText] = useState("");
   const [servicesText, setServicesText] = useState("");
-  const [testimonialsText, setTestimonialsText] = useState("");
-  const [postsText, setPostsText] = useState("");
   const [lastUploaded, setLastUploaded] = useState("");
   const [mediaTarget, setMediaTarget] = useState<"heroImage" | "profileImage" | "resumeUrl" | "project">("heroImage");
   const [projectTargetId, setProjectTargetId] = useState("");
@@ -58,8 +56,6 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
     setSkillsText(JSON.stringify(next.skills, null, 2));
     setProjectsText(JSON.stringify(next.projects, null, 2));
     setServicesText(JSON.stringify(next.services, null, 2));
-    setTestimonialsText(JSON.stringify(next.testimonials, null, 2));
-    setPostsText(JSON.stringify(next.posts, null, 2));
     setProjectTargetId(next.projects[0]?.id ?? "");
   }, [contentQuery.data]);
 
@@ -143,8 +139,6 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
         skills: JSON.parse(skillsText),
         projects: JSON.parse(projectsText),
         services: JSON.parse(servicesText),
-        testimonials: JSON.parse(testimonialsText),
-        posts: JSON.parse(postsText),
       } as PortfolioContent;
       setDraft(next);
       toast.success("Structured content applied to the live preview.");
@@ -209,8 +203,6 @@ function AdminStudio({ onExit }: { onExit: () => void }) {
             <section className="admin-card"><div className="admin-card-title flex-wrap justify-between gap-3"><div className="flex items-center gap-2"><span>PROJECTS</span><h2>Project cards</h2></div><Button type="button" onClick={addProject} className="bg-[#b8ff5c] text-black hover:bg-[#d0ff87]"><Plus className="mr-2 h-4 w-4" />Add project</Button></div><p className="mb-5 text-sm leading-6 text-white/50">Create and edit every public card here. Live and GitHub links are optional—paste a complete URL or a domain such as <span className="font-mono text-white/70">github.com/your-repo</span>; blank fields are accepted.</p><div className="space-y-4">{draft.projects.map(project => <ProjectEditorCard key={project.id} project={project} onChange={changes => updateProject(project.id, changes)} onVisibilityChange={visible => setProjectVisibility(project.id, visible)} />)}</div></section>
             <StructuredEditor title="03 / Advanced project JSON" value={projectsText} onChange={setProjectsText} onApply={applyJsonEditors} hint="Use this only for bulk changes. Optional Live and GitHub URLs may be blank or may omit https://; Content Studio will normalize valid web addresses when saved." />
             <StructuredEditor title="04 / Expertise" value={servicesText} onChange={setServicesText} onApply={applyJsonEditors} hint="Shape the three service cards or add the distinct practices you offer." />
-            <StructuredEditor title="05 / Verified client quotes" value={testimonialsText} onChange={setTestimonialsText} onApply={applyJsonEditors} hint="Only add testimonials that you have received permission to publish." />
-            <StructuredEditor title="06 / Writing posts" value={postsText} onChange={setPostsText} onApply={applyJsonEditors} hint="Edit post title, slug, excerpt, body, tags, and ISO publishedAt date. Reading time is calculated automatically." />
           </div>
 
           <aside className="space-y-6 xl:sticky xl:top-6 xl:self-start">

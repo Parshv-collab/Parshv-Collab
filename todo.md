@@ -70,3 +70,9 @@
 - [x] Fix optional Live and GitHub URL validation so blank or valid project URLs do not block project saves.
 - [x] Add a clear Content Studio control to create a new project with editable starter fields.
 - [x] Diagnose and repair public rendering of images uploaded through Content Studio.
+- [x] Replace starter code defaults with the supplied Parshv Chandaria identity, contact details, skill groups, Jarvis project, and service descriptions.
+- [x] Add clearly labeled test writing posts to validate the public writing experience.
+- [x] Replace enquiry-email delivery with the owner-approved inbox-only Content Studio workflow.
+- [x] Remove client testimonials at the owner’s request instead of publishing client-quote content.
+- [x] Remove Resend email sending from portfolio enquiries and retain the Content Studio inbox as the sole review channel.
+- [x] Remove testimonials and writing from public routes, navigation, Content Studio, content defaults, validation, and documentation.

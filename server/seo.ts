@@ -20,10 +20,6 @@ export function getPageMeta(pathname: string) {
   refreshContentCache();
   const content = cachedContent;
   const base = { title: `${content.site.name} — ${content.site.role}`, description: content.site.pitch };
-  const postSlug = pathname.match(/^\/writing\/([^/?#]+)/)?.[1];
-  const post = postSlug ? content.posts.find(item => item.slug === postSlug) : null;
-  if (post) return { title: `${post.title} — ${content.site.name}`, description: post.excerpt };
-  if (pathname === "/writing") return { title: `Writing — ${content.site.name}`, description: `Writing and notes from ${content.site.name}.` };
   return base;
 }
 
@@ -44,9 +40,8 @@ export function registerSeoRoutes(app: Express) {
   app.get("/robots.txt", (_req, res) => res.type("text/plain").send("User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n"));
   app.get("/sitemap.xml", (req, res) => {
     refreshContentCache();
-    const content = cachedContent;
     const origin = process.env.SITE_URL || `${req.protocol}://${req.get("host")}`;
-    const paths = ["/", "/writing", ...content.posts.map(post => `/writing/${post.slug}`)];
+    const paths = ["/"];
     const urls = paths.map(path => `<url><loc>${origin}${path}</loc></url>`).join("");
     res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
   });

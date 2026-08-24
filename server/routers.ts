@@ -7,7 +7,6 @@ import { getInquiries, getPortfolioContent, markInquiryRead, saveInquiry, savePo
 import { storagePut } from "./storage";
 import { getGithubActivity } from "./github";
 import { getMongoDb } from "./mongo";
-import { sendContactEmail } from "./contactEmail";
 
 export function normalizeOptionalWebUrl(value: string) {
   const trimmed = value.trim();
@@ -35,8 +34,6 @@ export const contentSchema = z.object({
   skills: z.array(z.object({ id: z.string().min(1).max(100), title: z.string().min(1).max(100), items: z.array(skillSchema).max(24) })).max(12),
   projects: z.array(z.object({ id: z.string().min(1).max(100), visible: z.boolean(), title: z.string().min(1).max(180), category: z.enum(["Design", "Frontend", "Full-stack", "Open source"]), summary: z.string().min(1).max(500), tech: z.array(z.string().min(1).max(80)).max(30), liveUrl: urlOrEmpty, codeUrl: urlOrEmpty, images: z.array(urlOrEmpty).max(10) })).max(24),
   services: z.array(z.object({ id: z.string().min(1).max(100), eyebrow: z.string().min(1).max(30), title: z.string().min(1).max(150), description: z.string().min(1).max(800) })).max(12),
-  testimonials: z.array(z.object({ id: z.string().min(1).max(100), quote: z.string().min(1).max(1200), name: z.string().min(1).max(120), role: z.string().max(180), avatarUrl: urlOrEmpty })).max(20),
-  posts: z.array(z.object({ id: z.string().min(1).max(100), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160), title: z.string().min(1).max(180), excerpt: z.string().min(1).max(600), body: z.string().min(1).max(20000), tags: z.array(z.string().min(1).max(60)).max(10), publishedAt: z.string().datetime() })).max(100),
 });
 
 export const appRouter = router({
@@ -81,9 +78,7 @@ export const appRouter = router({
       .input(z.object({ name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(320), message: z.string().trim().min(20).max(4000) }))
       .mutation(async ({ input }) => {
         await saveInquiry(input);
-        const email = await sendContactEmail(input);
-        const whatsappText = encodeURIComponent(`New portfolio inquiry\n\nName: ${input.name}\nEmail: ${input.email}\n\nMessage:\n${input.message}`);
-        return { success: true, emailDelivered: email.delivered, whatsappUrl: `https://wa.me/919082007724?text=${whatsappText}` } as const;
+        return { success: true } as const;
       }),
     uploadMedia: passwordAdminProcedure
       .input(z.object({ filename: z.string().trim().regex(/^[a-zA-Z0-9._-]+$/).max(180), contentType: z.string().regex(/^(image\/(png|jpeg|webp|avif)|application\/pdf)$/), dataBase64: z.string().min(20).max(7_000_000) }))

@@ -1,5 +1,5 @@
 import type { PortfolioContent } from "@shared/portfolio";
-import { Command, Copy, FileText, Search, X } from "lucide-react";
+import { Command, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type PaletteItem = { label: string; hint: string; action: () => void };

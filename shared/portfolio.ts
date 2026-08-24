@@ -43,24 +43,6 @@ export type Service = {
   description: string;
 };
 
-export type Testimonial = {
-  id: string;
-  quote: string;
-  name: string;
-  role: string;
-  avatarUrl: string;
-};
-
-export type WritingPost = {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  body: string;
-  tags: string[];
-  publishedAt: string;
-};
-
 export type PortfolioContent = {
   site: {
     name: string;
@@ -81,20 +63,18 @@ export type PortfolioContent = {
   skills: SkillGroup[];
   projects: Project[];
   services: Service[];
-  testimonials: Testimonial[];
-  posts: WritingPost[];
 };
 
 export const defaultPortfolioContent: PortfolioContent = {
   site: {
-    name: "YOUR NAME",
+    name: "Parshv Chandaria",
     role: "FULL-STACK DEVELOPER · DESIGN-MINDED ENGINEER",
     pitch: "I create resilient digital products where the interface earns the attention and the system earns the trust.",
-    bio: "This portfolio is ready for your story. Use the owner dashboard to shape the narrative, introduce your experience, and present each selected project clearly.",
+    bio: "Welcome to my space. I specialize in turning complex ideas into smooth websites and high-performance applications. When I am not writing code for the web, I am designing, wiring, and programming robotics projects.",
     location: "Available worldwide",
-    email: "hello@yourdomain.com",
+    email: "chandariaparshv@gmail.com",
     resumeUrl: "",
-    heroImage: "",
+    heroImage: "https://cdn.phototourl.com/free/2026-08-24-03340257-fe38-40b9-a1a5-23ed054ea0e5.jpg",
     profileImage: "",
     accent: "#b8ff5c",
     githubUrl: "https://github.com/Parshv-collab",
@@ -133,22 +113,20 @@ export const defaultPortfolioContent: PortfolioContent = {
   ],
   projects: [
     {
-      id: "placeholder-1",
+      id: "jarvis-voice-assistant",
       visible: true,
-      title: "Featured project",
-      category: "Full-stack",
-      summary: "A deliberately open canvas for a project worth showing clearly.",
-      tech: ["Add", "your", "stack"],
+      title: "Jarvis",
+      category: "Open source",
+      summary: "An AI assistant capable of everything from opening a file to joining a meeting",
+      tech: ["Python", "API"],
       liveUrl: "",
-      codeUrl: "",
+      codeUrl: "https://github.com/Parshv-collab/Jarvis-Voice-Assistant",
       images: [],
     },
   ],
   services: [
-    { id: "service-1", eyebrow: "01", title: "Your first expertise", description: "Add a genuine service offering and describe the kind of work you want to be known for." },
-    { id: "service-2", eyebrow: "02", title: "Your second expertise", description: "Replace this starter entry with an actual specialty, client outcome, or delivery practice." },
-    { id: "service-3", eyebrow: "03", title: "Your third expertise", description: "Use this final card to make the scope of your work clear, specific, and client-approved." },
+    { id: "service-1", eyebrow: "01", title: "Web development", description: "Modern, premium and futuristic design with proper outcome." },
+    { id: "service-2", eyebrow: "02", title: "App development", description: "Professional apps that feel out of this world." },
+    { id: "service-3", eyebrow: "03", title: "Robotics", description: "Testing and creating useful robots and other projects related to it." },
   ],
-  testimonials: [],
-  posts: [],
 };
