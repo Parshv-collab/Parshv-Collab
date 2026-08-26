@@ -4,6 +4,7 @@ import { defaultPortfolioContent, type PortfolioContent } from "../shared/portfo
 
 let cachedContent: PortfolioContent = defaultPortfolioContent;
 let refreshInFlight = false;
+const SOCIAL_IMAGE_PATH = "/api/media/6a8d1bd3391f6915811f4985";
 
 function refreshContentCache() {
   if (refreshInFlight) return;
@@ -23,17 +24,35 @@ export function getPageMeta(pathname: string) {
   return base;
 }
 
-export function injectPageMeta(html: string, pathname: string) {
+export function injectPageMeta(html: string, pathname: string, origin = process.env.SITE_URL || "http://localhost:3000") {
   const meta = getPageMeta(pathname);
   const title = escapeHtml(meta.title);
   const description = escapeHtml(meta.description);
+  const canonicalUrl = new URL(pathname.split("?")[0] || "/", origin).toString();
+  const socialImageUrl = new URL(SOCIAL_IMAGE_PATH, origin).toString();
+  const content = cachedContent;
+  const structuredData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: content.site.name,
+    jobTitle: content.site.role,
+    description: content.site.pitch,
+    url: canonicalUrl,
+    image: content.site.heroImage || socialImageUrl,
+    sameAs: [content.site.githubUrl, content.site.linkedinUrl].filter(Boolean),
+  }).replace(/</g, "\\u003c");
   return html
     .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(" \/>)/, `$1${description}$2`)
     .replace(/(<meta property="og:title" content=")[^"]*(" \/>)/, `$1${title}$2`)
     .replace(/(<meta property="og:description" content=")[^"]*(" \/>)/, `$1${description}$2`)
     .replace(/(<meta name="twitter:title" content=")[^"]*(" \/>)/, `$1${title}$2`)
-    .replace(/(<meta name="twitter:description" content=")[^"]*(" \/>)/, `$1${description}$2`);
+    .replace(/(<meta name="twitter:description" content=")[^"]*(" \/>)/, `$1${description}$2`)
+    .replace(/(<link rel="canonical" href=")[^"]*(" \/>)/, `$1${canonicalUrl}$2`)
+    .replace(/(<meta property="og:url" content=")[^"]*(" \/>)/, `$1${canonicalUrl}$2`)
+    .replace(/(<meta property="og:image" content=")[^"]*(" \/>)/, `$1${socialImageUrl}$2`)
+    .replace(/(<meta name="twitter:image" content=")[^"]*(" \/>)/, `$1${socialImageUrl}$2`)
+    .replace(/(<script id="portfolio-jsonld" type="application\/ld\+json">)[\s\S]*?(<\/script>)/, `$1${structuredData}$2`);
 }
 
 export function registerSeoRoutes(app: Express) {

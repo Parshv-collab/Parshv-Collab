@@ -7,8 +7,8 @@ const homeSource = readFileSync(resolve(projectRoot, "client/src/pages/Home.tsx"
 const styles = readFileSync(resolve(projectRoot, "client/src/index.css"), "utf8");
 
 describe("mobile portfolio responsive contract", () => {
-  it("keeps touch-friendly filters and project actions wired to the mobile card styles", () => {
-    expect(homeSource).toContain("work-filter-strip");
+  it("keeps compact project previews and project actions wired to the mobile card styles", () => {
+    expect(homeSource).not.toContain("work-filter-strip");
     expect(homeSource).toContain("project-card-actions--single");
     expect(homeSource).toContain("min-h-12 bg-[var(--portfolio-accent)]");
     expect(homeSource).toContain("<BackToTop />");

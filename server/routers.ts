@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import type { PortfolioContent } from "../shared/portfolio";
+import { portfolioPaletteIds } from "../shared/palettes";
 import { passwordAdminProcedure, publicProcedure, router } from "./_core/trpc";
 import { createAdminSession, getAdminSessionToken, revokeAdminSession, verifyAdminPassword, verifyAdminSession } from "./adminPassword";
 import { getInquiries, getPortfolioContent, markInquiryRead, saveInquiry, savePortfolioContent } from "./portfolio";
@@ -29,10 +30,10 @@ const urlOrEmpty = z.string().max(2048).transform(normalizeOptionalWebUrl).refin
 const skillSchema = z.object({ id: z.string().min(1).max(100), name: z.string().min(1).max(100), level: z.enum(["Working knowledge", "Strong", "Expert"]) });
 export const contentSchema = z.object({
   site: z.object({
-    name: z.string().min(1).max(100), role: z.string().min(1).max(180), pitch: z.string().min(1).max(500), bio: z.string().min(1).max(5000), location: z.string().min(1).max(160), email: z.string().email().max(320), resumeUrl: urlOrEmpty, heroImage: urlOrEmpty, profileImage: urlOrEmpty, accent: z.string().regex(/^#[0-9a-fA-F]{6}$/), githubUrl: urlOrEmpty, githubUsername: z.string().max(100), linkedinUrl: urlOrEmpty, availability: z.enum(["Open to new work", "Currently booked", "Open to select conversations"]),
+    name: z.string().min(1).max(100), role: z.string().min(1).max(180), pitch: z.string().min(1).max(500), bio: z.string().min(1).max(5000), location: z.string().min(1).max(160), email: z.string().email().max(320), resumeUrl: urlOrEmpty, heroImage: urlOrEmpty, profileImage: urlOrEmpty, accent: z.string().regex(/^#[0-9a-fA-F]{6}$/), palette: z.enum(portfolioPaletteIds), githubUrl: urlOrEmpty, githubUsername: z.string().max(100), linkedinUrl: urlOrEmpty, availability: z.enum(["Open to new work", "Currently booked", "Open to select conversations"]),
   }),
   skills: z.array(z.object({ id: z.string().min(1).max(100), title: z.string().min(1).max(100), items: z.array(skillSchema).max(24) })).max(12),
-  projects: z.array(z.object({ id: z.string().min(1).max(100), visible: z.boolean(), title: z.string().min(1).max(180), category: z.enum(["Design", "Frontend", "Full-stack", "Open source"]), summary: z.string().min(1).max(500), tech: z.array(z.string().min(1).max(80)).max(30), liveUrl: urlOrEmpty, codeUrl: urlOrEmpty, images: z.array(urlOrEmpty).max(10) })).max(24),
+  projects: z.array(z.object({ id: z.string().min(1).max(100), visible: z.boolean(), hidden: z.boolean().default(false), title: z.string().min(1).max(180), category: z.enum(["Design", "Frontend", "Full-stack", "Open source"]), summary: z.string().min(1).max(500), tech: z.array(z.string().min(1).max(80)).max(30), liveUrl: urlOrEmpty, codeUrl: urlOrEmpty, images: z.array(urlOrEmpty).max(10) })).max(24),
   services: z.array(z.object({ id: z.string().min(1).max(100), eyebrow: z.string().min(1).max(30), title: z.string().min(1).max(150), description: z.string().min(1).max(800) })).max(12),
 });
 

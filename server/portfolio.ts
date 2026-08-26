@@ -1,4 +1,5 @@
 import { defaultPortfolioContent, type PortfolioContent } from "../shared/portfolio";
+import { getPortfolioPalette } from "../shared/palettes";
 import { getMongoDb } from "./mongo";
 
 const CONTENT_KEY = "portfolio";
@@ -20,6 +21,7 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
     const normalized = {
       id: project.id || fallback.id,
       visible: project.visible !== false,
+      hidden: project.hidden === true,
       title: project.title || fallback.title,
       category: project.category || fallback.category,
       summary: project.summary || fallback.summary,
@@ -34,12 +36,15 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
       summary: normalized.summary === "A deliberately empty canvas for a project that deserves a considered story." ? "A deliberately open canvas for a project worth showing clearly." : normalized.summary,
     };
   });
+  const palette = getPortfolioPalette(saved.site.palette);
   return {
     ...defaultPortfolioContent,
     ...saved,
     site: {
       ...defaultPortfolioContent.site,
       ...saved.site,
+      palette: palette.id,
+      accent: palette.accent,
       resumeUrl: normalizeStoredMediaUrl(saved.site.resumeUrl),
       heroImage: normalizeStoredMediaUrl(saved.site.heroImage),
       profileImage: normalizeStoredMediaUrl(saved.site.profileImage),

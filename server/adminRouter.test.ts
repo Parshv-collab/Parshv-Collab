@@ -40,4 +40,11 @@ describe("password-protected portfolio routes", () => {
     expect(normalizeOptionalWebUrl(" //example.com/project ")).toBe("https://example.com/project");
     expect(normalizeOptionalWebUrl("/api/media/6a89116f45be2a99ff20bfd0")).toBe("/api/media/6a89116f45be2a99ff20bfd0");
   });
+
+  it("accepts only the five owner-approved palette identifiers", () => {
+    expect(contentSchema.parse(defaultPortfolioContent).site.palette).toBe("luxurious");
+    const unsupportedPalette = structuredClone(defaultPortfolioContent);
+    (unsupportedPalette.site as { palette: string }).palette = "neon-green";
+    expect(() => contentSchema.parse(unsupportedPalette)).toThrow();
+  });
 });

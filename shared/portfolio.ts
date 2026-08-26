@@ -1,3 +1,6 @@
+import type { PortfolioPaletteId } from "./palettes";
+import { portfolioPalettes } from "./palettes";
+
 export type Skill = {
   id: string;
   name: string;
@@ -13,6 +16,7 @@ export type SkillGroup = {
 export type Project = {
   id: string;
   visible: boolean;
+  hidden: boolean;
   title: string;
   category: "Design" | "Frontend" | "Full-stack" | "Open source";
   summary: string;
@@ -26,6 +30,7 @@ export function createDraftProject(id: string): Project {
   return {
     id,
     visible: true,
+    hidden: false,
     title: "Untitled project",
     category: "Full-stack",
     summary: "Describe the problem, the product signal, and the outcome this project demonstrates.",
@@ -55,6 +60,7 @@ export type PortfolioContent = {
     heroImage: string;
     profileImage: string;
     accent: string;
+    palette: PortfolioPaletteId;
     githubUrl: string;
     githubUsername: string;
     linkedinUrl: string;
@@ -76,7 +82,8 @@ export const defaultPortfolioContent: PortfolioContent = {
     resumeUrl: "",
     heroImage: "https://cdn.phototourl.com/free/2026-08-24-03340257-fe38-40b9-a1a5-23ed054ea0e5.jpg",
     profileImage: "",
-    accent: "#b8ff5c",
+    accent: portfolioPalettes.luxurious.accent,
+    palette: "luxurious",
     githubUrl: "https://github.com/Parshv-collab",
     githubUsername: "Parshv-collab",
     linkedinUrl: "",
@@ -115,12 +122,37 @@ export const defaultPortfolioContent: PortfolioContent = {
     {
       id: "jarvis-voice-assistant",
       visible: true,
+      hidden: false,
       title: "Jarvis",
       category: "Open source",
       summary: "An AI assistant capable of everything from opening a file to joining a meeting",
       tech: ["Python", "API"],
       liveUrl: "",
       codeUrl: "https://github.com/Parshv-collab/Jarvis-Voice-Assistant",
+      images: [],
+    },
+    {
+      id: "sample-pulseboard",
+      visible: true,
+      hidden: false,
+      title: "Sample — Pulseboard",
+      category: "Frontend",
+      summary: "Sample project for testing compact project cards, visual density, and the expanded mobile detail view. Replace with a real project before publishing.",
+      tech: ["React", "TypeScript", "Framer Motion"],
+      liveUrl: "",
+      codeUrl: "",
+      images: [],
+    },
+    {
+      id: "sample-circuit-lab",
+      visible: true,
+      hidden: false,
+      title: "Sample — Circuit Lab",
+      category: "Full-stack",
+      summary: "Sample project for testing a multi-item portfolio list, filtering, and on-demand mobile project details. Replace with a real project before publishing.",
+      tech: ["Node.js", "API", "MongoDB"],
+      liveUrl: "",
+      codeUrl: "",
       images: [],
     },
   ],

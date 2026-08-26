@@ -10,6 +10,8 @@ Copy `.env.example` to `.env`, provide a MongoDB Atlas connection string and an 
 
 Create a free MongoDB Atlas cluster, create a database user, and copy the **Drivers** connection string. In Render, create a Node web service from this repository, set `MONGODB_URI` and `ADMIN_PASSWORD` in the Environment tab, use `npm run build` as the build command, and use `npm start` as the start command. Render supplies `PORT` automatically. Use an Atlas network access rule that permits the Render service, then open `/admin` and sign in with the configured password. The server loads a local `.env` file through `dotenv/config` for local development; production values remain in Render’s environment configuration.
 
+Set `SITE_URL` to the final public canonical origin, such as `https://your-domain.com`. This is used for canonical links, Open Graph and Twitter image URLs, JSON-LD, and sitemap entries; local development falls back to the active request origin.
+
 ## Content workflow
 
 The owner updates all public content through `/admin`. Site edits are password-protected on the client and independently verified server-side for every content, inbox, and media mutation. Uploaded project, profile, résumé, and hero assets use MongoDB GridFS and are served from `/api/media/:id`. Content, selected projects, availability, contact inbox records, and the five-minute GitHub response cache all live in MongoDB, so every visitor receives the same saved portfolio data after Render deployment.

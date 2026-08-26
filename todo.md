@@ -77,4 +77,35 @@
 - [x] Remove Resend email sending from portfolio enquiries and retain the Content Studio inbox as the sole review channel.
 - [x] Remove testimonials and writing from public routes, navigation, Content Studio, content defaults, validation, and documentation.
 - [x] Add a subtle, accessible loading transition when portfolio navigation moves between remaining sections.
-- [ ] Review mobile navigation in the available preview and prepare the project-card visual assignment workflow for final approved assets.
+- [x] Review mobile navigation in the available preview and confirm project-card visual assignment is ready when final approved assets are supplied.
+- [x] Make mobile project cards compact and reveal fuller project details only after a deliberate tap.
+- [x] Add two clearly labeled sample projects for multi-item compact mobile-list testing.
+- [x] Refine the mobile project-detail dialog with a smooth fade-in and prominent close action.
+- [x] Verify the persistent project list contains Jarvis alongside both sample projects, and add regression coverage for that complete list.
+- [x] Add durable regression coverage for the persisted portfolio project list containing Jarvis and both sample projects.
+- [x] Add an intentional swipe-down-to-close gesture to the mobile project detail dialog, while retaining explicit close controls.
+- [x] Complete a final quality, accessibility, responsive, and release-readiness review of the public portfolio and Content Studio entry experience.
+- [x] Complete and document desktop/mobile public and admin release-readiness checks, including runtime response verification and key accessibility interactions.
+- [x] Complete functional release-readiness checks for contact persistence, protected admin entry, dialog dismissal fallbacks, and runtime response cleanliness.
+- [x] Add executable gesture-dismissal coverage and document the available runtime observability evidence for final release readiness.
+- [x] Add complete SEO, Open Graph, Twitter, canonical, and crawler metadata for final publication.
+- [x] Create and integrate a custom Signal Atelier favicon and social sharing image asset.
+- [x] Execute an adversarial end-to-end test pass across public routes, APIs, media, metadata, and protected admin boundaries; fix every confirmed defect.
+- [x] Add a smooth, accessible loading state and clear success confirmation to the contact form submission flow.
+- [x] Explicitly reset contact form fields, validation feedback, and transient submission state after a successful inbox submission.
+- [x] Add persistent Content Studio palette controls for the five supplied background, text, and accent theme combinations, and apply the selected palette site-wide.
+- [x] Apply each owner-selected palette’s exact supplied background, text, and accent hex triplet across public portfolio surfaces without substituting derived theme variants.
+- [x] Replace residual hardcoded public non-image colors with palette variables and verify all five palette presets across key public sections, dialogs, and contact states.
+- [x] Replace or explicitly map remaining public feedback and contact colors to the selected palette, then add executable verification for all five palette presets across public states.
+- [x] Remove remaining hardcoded public palette color values from markup and add state-level verification for all five presets.
+- [x] Replace public alert and availability hardcoded colors with palette tokens and add executable coverage for all five palettes across loading, dialog, contact, and action states.
+- [x] Programmatically save, read back, and restore each of the five palette presets through the protected API while verifying public state-token coverage.
+- [x] Verify concrete public loading, dialog, contact, availability, and action-state palette tokens for every persisted preset.
+- [x] Show projects marked off from the primary live-site selection in a separate compact public Other Projects list, with an even denser mobile layout.
+- [x] Clarify project placement in Content Studio and add a true public-hide state separate from Selected Work and compact Other Projects placement.
+- [x] Add progressive Load More behavior to Other Projects and a reduced-motion-aware hover/focus thumbnail preview while retaining a compact mobile list.
+- [x] Exercise Load More and hover/focus preview behavior with a controlled set of multiple Other Projects, then restore the portfolio content.
+- [x] Ensure public portfolio content loads independently of the auxiliary GitHub activity request, then complete real-browser Other Projects interaction verification.
+- [x] Add a development-only multi-item Other Projects browser fixture and use it to validate the real Load More and preview interaction paths.
+- [x] Click Load More and trigger hover plus keyboard focus preview states in a controlled browser session with multiple Other Projects, then restore content.
+- [x] Remove category and technology filter bars from the Projects with a point of view section while retaining all featured projects.
